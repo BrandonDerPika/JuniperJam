@@ -3,7 +3,10 @@ using UnityEngine;
 
 public abstract class GravitySource : MonoBehaviour
 {
-    // Global tracker holding references to active components for spatial optimization queries
+    [Header("Identity")]
+    [SerializeField] private Planner.PlanetType planetType = Planner.PlanetType.Circle;
+    public Planner.PlanetType Type => planetType;
+
     public static readonly List<GravitySource> ActiveSources = new List<GravitySource>();
 
     [Header("Core Gravity")]
@@ -47,13 +50,13 @@ public abstract class GravitySource : MonoBehaviour
         Vector2 toSource = sourcePos - bodyPos;
         float distance = toSource.magnitude;
 
-        // Perform boundary range validation check
+        // check
         if (distance > influenceRadius || distance <= Mathf.Epsilon)
             return Vector2.zero;
 
         Vector2 inwardDir = GetGravityDirection(bodyPos, body);
 
-        // Curve decay calculations to handle orbit transitions gently near thresholds
+        // calculations
         float range01 = Mathf.Clamp01(distance / influenceRadius);
         float rangeFalloff = 1f - range01;
         float inverseSoftened = 1f / (1f + softening * distance * distance);
@@ -61,7 +64,6 @@ public abstract class GravitySource : MonoBehaviour
         float radialStrength = gravityStrength * rangeFalloff * rangeFalloff * inverseSoftened;
         Vector2 force = inwardDir * radialStrength;
 
-        // Inject orthogonal velocity boost to enhance directional orbital stabilization
         if (tangentialAssist > 0f && distance <= tangentialAssistRadius)
         {
             Vector2 tangent = new Vector2(-inwardDir.y, inwardDir.x);
@@ -76,7 +78,6 @@ public abstract class GravitySource : MonoBehaviour
             force += tangent * assistStrength;
         }
 
-        // Apply corrective counter-force to alleviate terminal lockups when velocity drops beneath escape thresholds
         if (distance < escapeAssistRadius && body.Velocity.magnitude < body.MinEscapeSpeed)
         {
             float speed01 = Mathf.Clamp01(body.Velocity.magnitude / Mathf.Max(body.MinEscapeSpeed, 0.01f));

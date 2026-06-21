@@ -20,8 +20,6 @@ public class PlayerController : MonoBehaviour
     private Vector2 launchVelocity;
 
     private bool lastPlanningState;
-
-    // Snapshot storage definitions for scene rollbacks
     private Vector2 initialPosition;
     private Vector2 initialVelocity;
 

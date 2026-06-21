@@ -2,16 +2,22 @@ using UnityEngine;
 
 public class Target : MonoBehaviour
 {
-    [Header("Assign in Inspector")]
-    public GameObject player;
-    public GameObject uiToEnable;
+    [SerializeField] private string playerTag = "Player";
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Check for specific identity intersection with the tracking entity reference
-        if (other.gameObject == player)
+        // Verify structural identity against the designated tracking tag profile
+        if (other.CompareTag(playerTag))
         {
-            uiToEnable.SetActive(true);
+            if (LevelManager.Instance != null)
+            {
+                // Tell the level manager we hit our target and want to progress
+                LevelManager.Instance.CompleteCurrentLevel();
+            }
+            else
+            {
+                Debug.LogWarning("Target triggered, but no LevelManager instance found in scene!");
+            }
         }
     }
 }

@@ -24,7 +24,6 @@ public class GameState : MonoBehaviour
 
     private void Awake()
     {
-        // Enforce instance isolation on initialization
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);

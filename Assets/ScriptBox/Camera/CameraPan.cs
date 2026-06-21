@@ -37,7 +37,6 @@ public class CameraPan : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Execute frame transitions inside LateUpdate to guarantee sync accuracy with player movement updates
         transform.position = Vector3.SmoothDamp(
             transform.position,
             targetPosition,

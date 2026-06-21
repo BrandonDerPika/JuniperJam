@@ -7,6 +7,9 @@ public class GravityBody : MonoBehaviour
     [SerializeField] private bool useGravity = true;
     [SerializeField] private float minEscapeSpeed = 1.2f;
     [SerializeField] private float maxForcePerSource = 100f;
+    
+    [Header("Safety Net Caps")]
+    [SerializeField] private float maxVelocityMagnitude = 50f; // HARD CAP: Keeps objects from hitting infinite lightspeed spikes
 
     private Rigidbody2D rb;
 
@@ -21,7 +24,7 @@ public class GravityBody : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!GravitySystem.GravityEnabled || rb == null)
+        if (!GravitySystem.GravityEnabled || rb == null || !useGravity)
             return;
 
         Vector2 totalForce = Vector2.zero;
@@ -34,6 +37,10 @@ public class GravityBody : MonoBehaviour
 
             Vector2 force = source.GetForceOn(this);
 
+            // If the gravity source returns an invalid math operation (NaN), discard it
+            if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsInfinity(force.x) || float.IsInfinity(force.y))
+                continue;
+
             if (force.sqrMagnitude > maxForcePerSource * maxForcePerSource)
                 force = force.normalized * maxForcePerSource;
 
@@ -41,5 +48,11 @@ public class GravityBody : MonoBehaviour
         }
 
         rb.AddForce(totalForce, ForceMode2D.Force);
+
+        // If physics forces punch the object past the hard speed speed limit, clamp it instantly
+        if (rb.velocity.sqrMagnitude > maxVelocityMagnitude * maxVelocityMagnitude)
+        {
+            rb.velocity = rb.velocity.normalized * maxVelocityMagnitude;
+        }
     }
 }

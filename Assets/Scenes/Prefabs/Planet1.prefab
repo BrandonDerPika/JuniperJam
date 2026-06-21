@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6066663835480715156}
   - component: {fileID: 9085106207498956690}
   - component: {fileID: 2896591280642059569}
-  - component: {fileID: -2878300803845114193}
+  - component: {fileID: -5773616917277628591}
   m_Layer: 0
   m_Name: Planet1
   m_TagString: Untagged
@@ -72,15 +72,15 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 2062779361
+  m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b38fc8fd2d146dc4dbb5d7451c045476, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 3, y: 2.19}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -98,15 +98,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60f355d1a02c1c469b7015de0cefc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gravityStrength: 100
-  influenceRadius: 10
+  planetType: 0
+  gravityStrength: 1
+  influenceRadius: 1
   softening: 0.2
   tangentialAssist: 0.15
-  tangentialAssistRadius: 8
-  escapeAssistRadius: 2
+  tangentialAssistRadius: 0.8
+  escapeAssistRadius: 0.2
   escapeAssistStrength: 8
---- !u!61 &-2878300803845114193
-BoxCollider2D:
+--- !u!58 &-5773616917277628591
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -138,15 +139,5 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Radius: 0.235
