@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -108,7 +108,91 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: stars_big
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 157
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: af8b12da5feb1094ab5921afd4460663
+      internalID: 926461920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: stars_small
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 91
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0ad15e9cfa283c24baab4ee6775e5cdb
+      internalID: 2029072959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: stars_med
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 96
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a169a3b7f3bc7b479bbc7e66690ee9c
+      internalID: 1734931826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: stars_all
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 90
+        width: 163
+        height: 88
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f1058cc2325adf478d68abb20adbd14
+      internalID: 1164891933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -119,7 +203,21 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      stars_1: -1987364156
+      stars_11: -1899041734
+      stars_12: -454778694
+      stars_13: 1389665201
+      stars_2: -43346424
+      stars_3: -2105738684
+      stars_5: -442433893
+      stars_6: -1109096606
+      stars_7: -1400864749
+      stars_8: 189331824
+      stars_all: 1164891933
+      stars_big: 926461920
+      stars_med: 1734931826
+      stars_small: 2029072959
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
