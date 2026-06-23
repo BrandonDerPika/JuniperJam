@@ -46,7 +46,10 @@ public class Planner : MonoBehaviour
 
         if (!GameState.Instance.IsPlanning)
         {
-            CancelDrag();
+            if (isDragging)
+            {
+                CancelDrag();
+            }
             return;
         }
 
