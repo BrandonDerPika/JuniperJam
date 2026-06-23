@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(LineRenderer))]
@@ -114,20 +115,27 @@ public class PlayerController : MonoBehaviour
 
     private void HandleInput()
     {
+        // holding / drag
         if (Input.GetMouseButtonDown(0))
         {
-            if (!isAiming && !hasLockedShot)
+            // checks against clicking on UI
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            if (!hasLockedShot)
             {
                 StartAiming();
             }
-            else if (isAiming)
-            {
-                LockAim();
-            }
-            else if (hasLockedShot)
+            else
             {
                 ModifyExistingAim();
             }
+        }
+
+        // release
+        if (Input.GetMouseButtonUp(0) && isAiming)
+        {
+            LockAim();
         }
     }
 
