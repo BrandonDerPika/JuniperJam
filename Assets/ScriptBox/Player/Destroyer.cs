@@ -4,11 +4,8 @@ using UnityEngine;
 public class Destroyer : MonoBehaviour
 {
     [Header("Momentum Transfer Settings")]
-    [Range(0f, 1f)] 
-    [SerializeField] private float speedTransferPercentage = 0.8f; 
-    
-    [Range(0f, 1f)] 
-    [SerializeField] private float playerSpeedRetention = 0.4f;   
+    [Range(0f, 1f)] [SerializeField] private float speedTransferPercentage = 0.8f; 
+    [Range(0f, 1f)] [SerializeField] private float playerSpeedRetention = 0.4f;   
 
     [Header("Safety Speed Caps")]
     [SerializeField] private float absoluteMaxLaunchSpeed = 40f; 
@@ -35,6 +32,7 @@ public class Destroyer : MonoBehaviour
         if (isSubscribed && GameState.Instance != null)
         {
             GameState.Instance.OnPhaseChanged -= HandlePhaseChanged;
+            GameState.Instance.OnCheckpointSnapped -= HandleCheckpointSnapped;
             isSubscribed = false;
         }
     }
@@ -49,13 +47,20 @@ public class Destroyer : MonoBehaviour
         if (!isSubscribed && GameState.Instance != null)
         {
             GameState.Instance.OnPhaseChanged += HandlePhaseChanged;
+            GameState.Instance.OnCheckpointSnapped += HandleCheckpointSnapped;
             isSubscribed = true;
         }
     }
 
+    private void HandleCheckpointSnapped()
+    {
+        initialPosition = rb.position;
+        initialVelocity = rb.velocity;
+    }
+
     private void HandlePhaseChanged(GameState.Phase newPhase)
     {
-        if (newPhase == GameState.Phase.Planning)
+        if (newPhase == GameState.Phase.Planning || newPhase == GameState.Phase.Pause)
         {
             rb.position = initialPosition;
             rb.velocity = initialVelocity;
@@ -72,44 +77,30 @@ public class Destroyer : MonoBehaviour
             Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
             if (playerRb != null)
             {
-                // Line of Centers
                 Vector2 centerLine = rb.position - playerRb.position;
                 Vector2 destroyerLaunchDirection = centerLine.sqrMagnitude > 0.001f ? centerLine.normalized : collision.relativeVelocity.normalized;
 
-                // Get incoming speed and direction
                 float incomingSpeed = collision.relativeVelocity.magnitude;
                 if (incomingSpeed <= 0.001f || float.IsNaN(incomingSpeed)) return;
 
                 Vector2 playerIncomingDir = collision.relativeVelocity.normalized;
 
-                // Launch Destroyer forward along the line of centers
                 float transferredSpeed = incomingSpeed * speedTransferPercentage;
                 transferredSpeed = Mathf.Clamp(transferredSpeed, 0f, absoluteMaxLaunchSpeed);
                 rb.velocity = destroyerLaunchDirection * transferredSpeed;
 
-                // Calculate how "centered" the hit is.
                 float centerFactor = Mathf.Clamp01(Vector2.Dot(playerIncomingDir, destroyerLaunchDirection));
-                
-                // If the hit is dead-center, edgeGlanceWeight becomes 0 (no side deflection).
-                // If it's a glancing blow, edgeGlanceWeight scales up towards 0.5f.
                 float edgeGlanceWeight = (1f - centerFactor) * 0.5f;
 
-                // Calculate the Tangent Plane (Perpendicular to the launch direction)
                 Vector2 tangent = new Vector2(-destroyerLaunchDirection.y, destroyerLaunchDirection.x);
 
-                // Align the tangent with the players side movement drift direction
                 if (Vector2.Dot(playerIncomingDir, tangent) < 0f)
                 {
                     tangent = -tangent;
                 }
 
-                // Dead center = stays perfectly inline with playerIncomingDir
-                // Edge hit = blends out towards the tangent vector path
                 Vector2 playerDeflectionDirection = Vector2.Lerp(playerIncomingDir, tangent, edgeGlanceWeight).normalized;
-
                 playerRb.velocity = playerDeflectionDirection * (incomingSpeed * playerSpeedRetention);
-                
-                Debug.Log($"Hit processed. Center Accuracy: {centerFactor * 100}%. Deflection Weight Applied: {edgeGlanceWeight}");
             }
         }
     }

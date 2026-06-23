@@ -44,7 +44,7 @@ public class Planner : MonoBehaviour
         if (GameState.Instance == null)
             return;
 
-        if (!GameState.Instance.IsPlanning)
+        if (!GameState.Instance.IsPlanningOrPaused)
         {
             if (isDragging)
             {
@@ -68,7 +68,7 @@ public class Planner : MonoBehaviour
     // Called by ui buttons
     public void StartDraggingPlanet(int typeIndex)
     {
-        if (!GameState.Instance.IsPlanning || isDragging)
+        if (!GameState.Instance.IsPlanningOrPaused || isDragging)
             return;
 
         selectedType = (PlanetType)typeIndex;
@@ -211,7 +211,7 @@ public class Planner : MonoBehaviour
 
     private void HandleDeletion()
     {
-        if (!GameState.Instance.IsPlanning || isDragging)
+        if (!GameState.Instance.IsPlanningOrPaused || isDragging)
             return;
 
         if (!Input.GetMouseButtonDown(1))

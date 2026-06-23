@@ -8,7 +8,8 @@ public class GameState : MonoBehaviour
     public enum Phase
     {
         Planning,
-        Running
+        Running,
+        Pause
     }
 
     [Header("State")]
@@ -17,10 +18,14 @@ public class GameState : MonoBehaviour
     public Phase CurrentPhase => currentPhase;
     public bool IsRunning => currentPhase == Phase.Running;
     public bool IsPlanning => currentPhase == Phase.Planning;
+    public bool IsPaused => currentPhase == Phase.Pause;
+    
+    public bool IsPlanningOrPaused => currentPhase == Phase.Planning || currentPhase == Phase.Pause;
 
     public event Action<Phase> OnPhaseChanged;
     public event Action OnPlanningStarted;
     public event Action OnRunningStarted;
+    public event Action OnCheckpointSnapped;
 
     private void Awake()
     {
@@ -48,9 +53,15 @@ public class GameState : MonoBehaviour
 
     public void TogglePhase()
     {
-        SetPhase(currentPhase == Phase.Planning
-            ? Phase.Running
-            : Phase.Planning);
+        if (currentPhase == Phase.Running)
+        {
+            // If hit a checkpoint before go back to Pause state
+            SetPhase(Checkpoint.HasReachedCheckpoint ? Phase.Pause : Phase.Planning);
+        }
+        else
+        {
+            SetPhase(Phase.Running);
+        }
     }
 
     public void SetPhase(Phase newPhase)
@@ -62,24 +73,27 @@ public class GameState : MonoBehaviour
         ApplyPhase(currentPhase);
     }
 
+    public void TriggerCheckpoint()
+    {
+        OnCheckpointSnapped?.Invoke();
+    }
+
     private void ApplyPhase(Phase phase)
     {
-        // Dispatch state changes to downstream listeners
         OnPhaseChanged?.Invoke(phase);
 
         switch (phase)
         {
             case Phase.Planning:
+            case Phase.Pause:
                 GravitySystem.SetGravityEnabled(false);
-                Debug.Log("Resetting...");
-
+                Debug.Log($"Resetting to {phase}...");
                 OnPlanningStarted?.Invoke();
                 break;
 
             case Phase.Running:
                 GravitySystem.SetGravityEnabled(true);
                 Debug.Log("Running...");
-
                 OnRunningStarted?.Invoke();
                 break;
         }

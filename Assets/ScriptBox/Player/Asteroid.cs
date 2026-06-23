@@ -25,6 +25,7 @@ public class Asteroid : MonoBehaviour
         if (isSubscribed && GameState.Instance != null)
         {
             GameState.Instance.OnPhaseChanged -= HandlePhaseChanged;
+            GameState.Instance.OnCheckpointSnapped -= HandleCheckpointSnapped;
             isSubscribed = false;
         }
     }
@@ -39,14 +40,22 @@ public class Asteroid : MonoBehaviour
         if (!isSubscribed && GameState.Instance != null)
         {
             GameState.Instance.OnPhaseChanged += HandlePhaseChanged;
+            GameState.Instance.OnCheckpointSnapped += HandleCheckpointSnapped;
             isSubscribed = true;
             HandlePhaseChanged(GameState.Instance.CurrentPhase);
         }
     }
 
+    private void HandleCheckpointSnapped()
+    {
+        // Capture exact physics snapshot when checkpoint triggers
+        initialPosition = rb.position;
+        initialVelocity = rb.velocity;
+    }
+
     private void HandlePhaseChanged(GameState.Phase newPhase)
     {
-        if (newPhase == GameState.Phase.Planning)
+        if (newPhase == GameState.Phase.Planning || newPhase == GameState.Phase.Pause)
         {
             rb.position = initialPosition;
             rb.velocity = initialVelocity;
@@ -56,10 +65,11 @@ public class Asteroid : MonoBehaviour
 
     private void TriggerGameOver()
     {
-        Debug.Log("Player hit an asteroid! Resetting to Planning Phase.");
+        Debug.Log("Player hit an asteroid! Resetting game state phase.");
         if (GameState.Instance != null)
         {
-            GameState.Instance.SetPhase(GameState.Phase.Planning);
+            // Reset to Pause state if checkpoint was unlocked, otherwise back to normal Planning
+            GameState.Instance.SetPhase(Checkpoint.HasReachedCheckpoint ? GameState.Phase.Pause : GameState.Phase.Planning);
         }
     }
 
@@ -73,12 +83,10 @@ public class Asteroid : MonoBehaviour
         }
     }
 
-    // BOunce
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (GameState.Instance == null || !GameState.Instance.IsRunning) return;
 
-        // Fallback check just in case the trigger missed it
         if (collision.gameObject.CompareTag("Player"))
         {
             TriggerGameOver();

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,6 +9,12 @@ public class PlayerController : MonoBehaviour
     [Header("Launch Settings")]
     [SerializeField] private float launchPower = 8f;
     [SerializeField] private float maxDragDistance = 3.5f;
+
+    [Header("Trajectory Settings")]
+    [SerializeField] private int simulationSteps = 180;
+    [SerializeField] private float stepTimeDelta = 0.02f;
+    [SerializeField] private float maxForcePerSource = 100f;
+    [SerializeField] private float maxVelocityMagnitude = 50f;
 
     private Rigidbody2D rb;
     private LineRenderer line;
@@ -33,13 +40,25 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         line = GetComponent<LineRenderer>();
 
-        line.positionCount = 2;
+        line.positionCount = 0;
         line.enabled = false;
     }
 
     private void Start()
     {
         CaptureSnapshot();
+        if (GameState.Instance != null)
+        {
+            GameState.Instance.OnCheckpointSnapped += UpdateCheckpointSnapshot;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameState.Instance != null)
+        {
+            GameState.Instance.OnCheckpointSnapped -= UpdateCheckpointSnapshot;
+        }
     }
 
     private void CaptureSnapshot()
@@ -50,6 +69,17 @@ public class PlayerController : MonoBehaviour
         initialAimStart = aimStartWorld;
         initialLaunchVelocity = launchVelocity;
         initialHasLockedShot = hasLockedShot;
+    }
+
+    private void UpdateCheckpointSnapshot()
+    {
+        initialPosition = rb.position;
+        initialVelocity = rb.velocity;
+        
+        hasLockedShot = false;
+        initialHasLockedShot = false;
+        launchVelocity = Vector2.zero;
+        initialLaunchVelocity = Vector2.zero;
     }
 
     private void RestoreSnapshot()
@@ -67,8 +97,7 @@ public class PlayerController : MonoBehaviour
         {
             isAiming = false;
             line.enabled = true;
-            Vector2 dragVector = launchVelocity / launchPower;
-            DrawLine(dragVector);
+            CalculateAndDrawCurvedTrajectory(launchVelocity);
         }
         else
         {
@@ -82,7 +111,7 @@ public class PlayerController : MonoBehaviour
         if (GameState.Instance == null)
             return;
 
-        bool isPlanning = GameState.Instance.IsPlanning;
+        bool isPlanning = GameState.Instance.IsPlanningOrPaused;
 
         if (isPlanning != lastPlanningState)
         {
@@ -110,15 +139,20 @@ public class PlayerController : MonoBehaviour
         HandleInput();
 
         if (isAiming)
+        {
             UpdateAim();
+        }
+        else if (hasLockedShot)
+        {
+            // just in case gravitysources affect other sources
+            CalculateAndDrawCurvedTrajectory(launchVelocity);
+        }
     }
 
     private void HandleInput()
     {
-        // holding / drag
         if (Input.GetMouseButtonDown(0))
         {
-            // checks against clicking on UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
 
@@ -132,7 +166,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // release
         if (Input.GetMouseButtonUp(0) && isAiming)
         {
             LockAim();
@@ -143,7 +176,6 @@ public class PlayerController : MonoBehaviour
     {
         isAiming = true;
         hasLockedShot = false;
-
         aimStartWorld = rb.position;
         line.enabled = true;
     }
@@ -156,10 +188,8 @@ public class PlayerController : MonoBehaviour
 
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 currentMouse = new Vector2(mouseWorld.x, mouseWorld.y);
-
         Vector2 existingDragVector = launchVelocity / launchPower;
 
-        // Shift vector configuration origin outward to anchor current cursor to the existing vector tip
         aimStartWorld = currentMouse - existingDragVector;
     }
 
@@ -168,7 +198,6 @@ public class PlayerController : MonoBehaviour
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         aimCurrentWorld = new Vector2(mouseWorld.x, mouseWorld.y);
 
-        // Calculate directional vector extending directly toward the system tracking point
         Vector2 dragVector = aimCurrentWorld - aimStartWorld;
 
         if (dragVector.magnitude > maxDragDistance)
@@ -176,13 +205,100 @@ public class PlayerController : MonoBehaviour
 
         launchVelocity = dragVector * launchPower;
 
-        DrawLine(dragVector);
+        CalculateAndDrawCurvedTrajectory(launchVelocity);
     }
 
-    private void DrawLine(Vector2 dragVector)
+    private void CalculateAndDrawCurvedTrajectory(Vector2 startVelocity)
     {
-        line.SetPosition(0, rb.position);
-        line.SetPosition(1, rb.position + dragVector);
+        line.enabled = true;
+
+        List<Vector3> simulationPoints = new List<Vector3>();
+        Vector2 currentSimPosition = rb.position;
+        Vector2 currentSimVelocity = startVelocity;
+
+        simulationPoints.Add(currentSimPosition);
+
+        // Fetch
+        GravityBody bodyComponent = GetComponent<GravityBody>();
+        float minEscapeSpeed = bodyComponent != null ? bodyComponent.MinEscapeSpeed : 1.2f;
+
+        for (int step = 0; step < simulationSteps; step++)
+        {
+            Vector2 combinedGravityForce = Vector2.zero;
+
+            for (int i = 0; i < GravitySource.ActiveSources.Count; i++)
+            {
+                GravitySource source = GravitySource.ActiveSources[i];
+                if (source == null || !source.isActiveAndEnabled)
+                    continue;
+
+                // Call 
+                Vector2 force = GetSimulatedForceOn(source, currentSimPosition, currentSimVelocity, minEscapeSpeed);
+
+                if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsInfinity(force.x) || float.IsInfinity(force.y))
+                    continue;
+
+                if (force.sqrMagnitude > maxForcePerSource * maxForcePerSource)
+                    force = force.normalized * maxForcePerSource;
+
+                combinedGravityForce += force;
+            }
+
+            currentSimVelocity += combinedGravityForce * stepTimeDelta;
+
+            // Apply hard safety velocity limits matching GravityBody
+            if (currentSimVelocity.sqrMagnitude > maxVelocityMagnitude * maxVelocityMagnitude)
+            {
+                currentSimVelocity = currentSimVelocity.normalized * maxVelocityMagnitude;
+            }
+
+            currentSimPosition += currentSimVelocity * stepTimeDelta;
+            simulationPoints.Add(currentSimPosition);
+        }
+
+        line.positionCount = simulationPoints.Count;
+        line.SetPositions(simulationPoints.ToArray());
+    }
+
+    private Vector2 GetSimulatedForceOn(GravitySource source, Vector2 position, Vector2 velocity, float minEscapeSpeed)
+    {
+        Vector2 sourcePos = source.transform.position;
+        Vector2 toSource = sourcePos - position;
+        float distance = toSource.magnitude;
+
+        if (distance > source.InfluenceRadius || distance <= Mathf.Epsilon)
+            return Vector2.zero;
+
+        Vector2 inwardDir = toSource.normalized; // direction mimicing
+
+        float range01 = Mathf.Clamp01(distance / source.InfluenceRadius);
+        float rangeFalloff = 1f - range01;
+        float inverseSoftened = 1f / (1f + source.Softening * distance * distance);
+
+        float radialStrength = source.GravityStrength * rangeFalloff * rangeFalloff * inverseSoftened;
+        Vector2 force = inwardDir * radialStrength;
+
+        if (source.TangentialAssist > 0f && distance <= source.TangentialAssistRadius)
+        {
+            Vector2 tangent = new Vector2(-inwardDir.y, inwardDir.x);
+
+            if (Vector2.Dot(velocity, tangent) < 0f)
+                tangent = -tangent;
+
+            float assist01 = Mathf.Clamp01(1f - (distance / source.TangentialAssistRadius));
+            float assistStrength = source.GravityStrength * source.TangentialAssist * assist01 * assist01;
+
+            force += tangent * assistStrength;
+        }
+
+        if (distance < source.EscapeAssistRadius && velocity.magnitude < minEscapeSpeed)
+        {
+            float speed01 = Mathf.Clamp01(velocity.magnitude / Mathf.Max(minEscapeSpeed, 0.01f));
+            float escapeBoost = (1f - speed01) * source.EscapeAssistStrength;
+            force += -inwardDir * escapeBoost;
+        }
+
+        return force;
     }
 
     private void LockAim()
