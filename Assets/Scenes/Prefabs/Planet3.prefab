@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2571040197853934562}
   m_Layer: 0
   m_Name: Planet3
-  m_TagString: Untagged
+  m_TagString: Planet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 7356535616103819959}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.06, y: 0.02, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalPosition: {x: 1.8857363, y: -0.32050365, z: 0}
+  m_LocalScale: {x: 0.20000002, y: 0.20000002, z: 0.20000002}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -99,13 +99,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   planetType: 2
-  gravityStrength: 250
-  influenceRadius: 12
+  gravityStrength: 0.55
+  influenceRadius: 0.6
   softening: 0.2
-  tangentialAssist: 0.196
-  tangentialAssistRadius: 8
-  escapeAssistRadius: 4.5
-  escapeAssistStrength: 99
+  tangentialAssist: 1
+  tangentialAssistRadius: 0.45
+  escapeAssistRadius: 0.2
+  escapeAssistStrength: 8
 --- !u!61 &2571040197853934562
 BoxCollider2D:
   m_ObjectHideFlags: 0

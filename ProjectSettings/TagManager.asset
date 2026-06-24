@@ -5,11 +5,13 @@ TagManager:
   serializedVersion: 2
   tags:
   - Destroyer
+  - Explosion
+  - Planet
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - target
   - Water
   - UI
   - Objects
@@ -47,4 +49,7 @@ TagManager:
     locked: 0
   - name: Interactables
     uniqueID: 2062779361
+    locked: 0
+  - name: Explosion
+    uniqueID: 196147877
     locked: 0

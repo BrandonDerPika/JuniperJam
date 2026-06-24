@@ -7,10 +7,6 @@ public class CameraPan : MonoBehaviour
     public float moveSpeed = 10f;
     public float smoothTime = 0.15f;
 
-    [Header("Edge Detection (Percentage 0.0 to 1.0)")]
-    [Range(0f, 0.5f)] public float horizontalThresholdPercentage = 0.05f;
-    [Range(0f, 0.5f)] public float verticalThresholdPercentage = 0.05f;
-
     [Header("Controls")]
     public bool canMoveHorizontal = true;
     public bool canMoveVertical = true;
@@ -25,17 +21,33 @@ public class CameraPan : MonoBehaviour
     [SerializeField] private Image upArrow;
     [SerializeField] private Image downArrow;
 
+    [Header("Detection Areas")]
+    [SerializeField] private RectTransform leftDetectionArea;
+    [SerializeField] private RectTransform rightDetectionArea;
+    [SerializeField] private RectTransform upDetectionArea;
+    [SerializeField] private RectTransform downDetectionArea;
+
+    [Header("Overriding UI")]
+    [SerializeField] private RectTransform blockingMenu;
+
     [Header("Sprite Variants")]
     [SerializeField] private Sprite defaultSprite;
     [SerializeField] private Sprite activeSprite;
 
     private Vector3 targetPosition;
     private Vector3 velocity;
+    private Camera uiCamera; 
 
     private void Start()
     {
         targetPosition = transform.position;
         UpdateUIElements();
+
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera)
+        {
+            uiCamera = canvas.worldCamera;
+        }
     }
 
     private void Update()
@@ -44,23 +56,28 @@ public class CameraPan : MonoBehaviour
 
         if (!canMoveHorizontal && !canMoveVertical) return;
 
-        Vector3 input = Vector3.zero;
-        
-        float normalizedX = Input.mousePosition.x / Screen.width;
-        float normalizedY = Input.mousePosition.y / Screen.height;
+        Vector2 mousePos = Input.mousePosition;
 
+        if (blockingMenu != null && blockingMenu.gameObject.activeInHierarchy)
+        {
+            if (RectTransformUtility.RectangleContainsScreenPoint(blockingMenu, mousePos, uiCamera))
+            {
+                ResetArrowSprites();
+                return; 
+            }
+        }
+
+        Vector3 input = Vector3.zero;
         ResetArrowSprites();
 
         if (canMoveHorizontal)
         {
-            // Left Edge Check
-            if (normalizedX >= 0f && normalizedX <= horizontalThresholdPercentage)
+            if (leftDetectionArea != null && RectTransformUtility.RectangleContainsScreenPoint(leftDetectionArea, mousePos, uiCamera))
             {
                 input.x = -1f; 
                 SetArrowActive(leftArrow);
             }
-            // Right Edge Check 
-            else if (normalizedX >= (1f - horizontalThresholdPercentage) && normalizedX <= 1f)
+            else if (rightDetectionArea != null && RectTransformUtility.RectangleContainsScreenPoint(rightDetectionArea, mousePos, uiCamera))
             {
                 input.x = 1f;  
                 SetArrowActive(rightArrow);
@@ -69,14 +86,12 @@ public class CameraPan : MonoBehaviour
 
         if (canMoveVertical)
         {
-            // Bottom Edge Check 
-            if (normalizedY >= 0f && normalizedY <= verticalThresholdPercentage)
+            if (downDetectionArea != null && RectTransformUtility.RectangleContainsScreenPoint(downDetectionArea, mousePos, uiCamera))
             {
                 input.y = -1f; 
                 SetArrowActive(downArrow);
             }
-            // Top Edge Check
-            else if (normalizedY >= (1f - verticalThresholdPercentage) && normalizedY <= 1f)
+            else if (upDetectionArea != null && RectTransformUtility.RectangleContainsScreenPoint(upDetectionArea, mousePos, uiCamera))
             {
                 input.y = 1f;  
                 SetArrowActive(upArrow);

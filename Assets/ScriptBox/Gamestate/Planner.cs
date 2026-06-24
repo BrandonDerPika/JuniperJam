@@ -105,7 +105,7 @@ public class Planner : MonoBehaviour
         Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
 
-        if (hit.collider != null)
+        if (hit.collider != null && hit.collider.CompareTag("Planet"))
         {
             GravitySource source = hit.collider.GetComponent<GravitySource>();
             if (source != null)
@@ -220,7 +220,7 @@ public class Planner : MonoBehaviour
         Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
 
-        if (hit.collider != null)
+        if (hit.collider != null && hit.collider.CompareTag("Planet"))
         {
             GravitySource source = hit.collider.GetComponent<GravitySource>();
             if (source != null)

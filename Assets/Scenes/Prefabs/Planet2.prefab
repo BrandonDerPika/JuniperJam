@@ -95,10 +95,10 @@ GameObject:
   - component: {fileID: 6066663835480715156}
   - component: {fileID: 9085106207498956690}
   - component: {fileID: 2896591280642059569}
-  - component: {fileID: -6147182905967747050}
+  - component: {fileID: 2561631266724858210}
   m_Layer: 0
   m_Name: Planet2
-  m_TagString: Untagged
+  m_TagString: Planet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -183,16 +183,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60f355d1a02c1c469b7015de0cefc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  planetType: 1
-  gravityStrength: 75
-  influenceRadius: 10
-  softening: 0.1
-  tangentialAssist: 0.05
-  tangentialAssistRadius: 8
-  escapeAssistRadius: 2
+  planetType: 0
+  gravityStrength: 0.8
+  influenceRadius: 1
+  softening: 0.2
+  tangentialAssist: 0.55
+  tangentialAssistRadius: 0.7
+  escapeAssistRadius: 0.2
   escapeAssistStrength: 8
---- !u!61 &-6147182905967747050
-BoxCollider2D:
+--- !u!58 &2561631266724858210
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -223,16 +223,6 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.21133333}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.33, y: 0.34}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
+  m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Radius: 0.17

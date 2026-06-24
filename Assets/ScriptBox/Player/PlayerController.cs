@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -35,10 +36,14 @@ public class PlayerController : MonoBehaviour
     private Vector2 initialLaunchVelocity;
     private bool initialHasLockedShot;
 
+    // Reference to our new animator script
+    private PlayerAnimator playerAnimator;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         line = GetComponent<LineRenderer>();
+        playerAnimator = GetComponent<PlayerAnimator>();
 
         line.positionCount = 0;
         line.enabled = false;
@@ -93,6 +98,12 @@ public class PlayerController : MonoBehaviour
 
         hasLaunchedThisRun = false;
 
+        // Tell the animator to clear any active flashes/hit states
+        if (playerAnimator != null)
+        {
+            playerAnimator.ResetVisuals();
+        }
+
         if (hasLockedShot)
         {
             isAiming = false;
@@ -144,7 +155,6 @@ public class PlayerController : MonoBehaviour
         }
         else if (hasLockedShot)
         {
-            // just in case gravitysources affect other sources
             CalculateAndDrawCurvedTrajectory(launchVelocity);
         }
     }
@@ -218,7 +228,6 @@ public class PlayerController : MonoBehaviour
 
         simulationPoints.Add(currentSimPosition);
 
-        // Fetch
         GravityBody bodyComponent = GetComponent<GravityBody>();
         float minEscapeSpeed = bodyComponent != null ? bodyComponent.MinEscapeSpeed : 1.2f;
 
@@ -232,7 +241,6 @@ public class PlayerController : MonoBehaviour
                 if (source == null || !source.isActiveAndEnabled)
                     continue;
 
-                // Call 
                 Vector2 force = GetSimulatedForceOn(source, currentSimPosition, currentSimVelocity, minEscapeSpeed);
 
                 if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsInfinity(force.x) || float.IsInfinity(force.y))
@@ -246,7 +254,6 @@ public class PlayerController : MonoBehaviour
 
             currentSimVelocity += combinedGravityForce * stepTimeDelta;
 
-            // Apply hard safety velocity limits matching GravityBody
             if (currentSimVelocity.sqrMagnitude > maxVelocityMagnitude * maxVelocityMagnitude)
             {
                 currentSimVelocity = currentSimVelocity.normalized * maxVelocityMagnitude;
@@ -269,7 +276,7 @@ public class PlayerController : MonoBehaviour
         if (distance > source.InfluenceRadius || distance <= Mathf.Epsilon)
             return Vector2.zero;
 
-        Vector2 inwardDir = toSource.normalized; // direction mimicing
+        Vector2 inwardDir = toSource.normalized; 
 
         float range01 = Mathf.Clamp01(distance / source.InfluenceRadius);
         float rangeFalloff = 1f - range01;
@@ -329,5 +336,21 @@ public class PlayerController : MonoBehaviour
 
         rb.velocity = launchVelocity;
         hasLaunchedThisRun = true;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (GameState.Instance != null && GameState.Instance.IsPlanningOrPaused)
+            return;
+
+        if (playerAnimator != null) playerAnimator.TriggerHitVisual();
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (GameState.Instance != null && GameState.Instance.IsPlanningOrPaused)
+            return;
+
+        if (playerAnimator != null) playerAnimator.TriggerHitVisual();
     }
 }
