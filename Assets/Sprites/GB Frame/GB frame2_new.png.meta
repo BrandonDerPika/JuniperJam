@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1fcd4a4676ffed04abaecae31decdd6e
+guid: 18110e9e19a890b429519a06a3b5eeb0
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -108,70 +108,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: menu_planet_objects_0
-      rect:
-        serializedVersion: 2
-        x: 12
-        y: 2
-        width: 26
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4723594d4dea64142abe48bb3aca2f83
-      internalID: 1747143433
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: menu_planet_objects_1
-      rect:
-        serializedVersion: 2
-        x: 50
-        y: 2
-        width: 28
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 35feb09ed8923bb44a656b798895fc32
-      internalID: 394426326
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: menu_planet_objects_2
-      rect:
-        serializedVersion: 2
-        x: 97
-        y: 7
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 88210ce05436f9a4c9c5adadcd35fcb6
-      internalID: 2061771405
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
@@ -182,10 +119,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      menu_planet_objects_0: 1747143433
-      menu_planet_objects_1: 394426326
-      menu_planet_objects_2: 2061771405
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

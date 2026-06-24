@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4ebb6aa96d30149448459e703ab22074
+guid: ca1a808f9c85caa41a0f78e45fef33c3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -49,7 +49,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 0, y: 0, z: 2, w: 3}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -69,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: menu_planet_closed_0
+      name: menu_planet_closed_highlithed_0
       rect:
         serializedVersion: 2
-        x: 1
+        x: 0
         y: 0
-        width: 173
-        height: 19
+        width: 175
+        height: 20
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,8 +124,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: aee5e443c1db08042a9d7bef975ec54f
-      internalID: 1892039949
+      spriteID: 32b6f50bb9f0667419ff67fc8ab3430a
+      internalID: -22071631
       vertices: []
       indices: 
       edges: []
@@ -134,14 +134,14 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 0
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      menu_planet_closed_0: 1892039949
+      menu_planet_closed_highlithed_0: -22071631
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
