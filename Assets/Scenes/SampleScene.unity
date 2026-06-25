@@ -2652,8 +2652,8 @@ MonoBehaviour:
   circlePlanetPrefab: {fileID: 7356535616103819959, guid: 0d1ce6c3eaa151145ac97253609839d5, type: 3}
   trianglePlanetPrefab: {fileID: 7356535616103819959, guid: 803916323c81d344a9e9a92108ea746c, type: 3}
   squarePlanetPrefab: {fileID: 7356535616103819959, guid: 8505fda92e17f964bab6440614cf3a4c, type: 3}
-  circleLimit: 3
-  triangleLimit: 1
+  circleLimit: 0
+  triangleLimit: 0
   squareLimit: 0
   cam: {fileID: 519420031}
   dragOpacity: 0.5
@@ -2836,6 +2836,16 @@ MonoBehaviour:
   stepTimeDelta: 0.02
   maxForcePerSource: 100
   maxVelocityMagnitude: 50
+  trajectorySprite: {fileID: 0}
+  maxTrajectorySprites: 15
+  stepInterval: 6
+  startScale: {x: 1, y: 1, z: 1}
+  minScale: {x: 0.3, y: 0.3, z: 1}
+  minAlpha: 0.1
+  minSpawnDistanceRadius: 0.8
+  revealSpeed: 30
+  sortingLayerName: Default
+  sortingOrder: 10
 --- !u!114 &768602053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5594,6 +5604,16 @@ MonoBehaviour:
   stepTimeDelta: 0.02
   maxForcePerSource: 100
   maxVelocityMagnitude: 50
+  trajectorySprite: {fileID: 0}
+  maxTrajectorySprites: 15
+  stepInterval: 6
+  startScale: {x: 1, y: 1, z: 1}
+  minScale: {x: 0.3, y: 0.3, z: 1}
+  minAlpha: 0.1
+  minSpawnDistanceRadius: 0.8
+  revealSpeed: 30
+  sortingLayerName: Default
+  sortingOrder: 10
 --- !u!114 &1333178562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6646,6 +6666,16 @@ MonoBehaviour:
   stepTimeDelta: 0.02
   maxForcePerSource: 100
   maxVelocityMagnitude: 50
+  trajectorySprite: {fileID: 0}
+  maxTrajectorySprites: 15
+  stepInterval: 6
+  startScale: {x: 1, y: 1, z: 1}
+  minScale: {x: 0.3, y: 0.3, z: 1}
+  minAlpha: 0.1
+  minSpawnDistanceRadius: 0.8
+  revealSpeed: 30
+  sortingLayerName: Default
+  sortingOrder: 10
 --- !u!114 &1418728138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9026,6 +9056,16 @@ MonoBehaviour:
   stepTimeDelta: 0.02
   maxForcePerSource: 100
   maxVelocityMagnitude: 50
+  trajectorySprite: {fileID: 0}
+  maxTrajectorySprites: 15
+  stepInterval: 6
+  startScale: {x: 1, y: 1, z: 1}
+  minScale: {x: 0.3, y: 0.3, z: 1}
+  minAlpha: 0.1
+  minSpawnDistanceRadius: 0.8
+  revealSpeed: 30
+  sortingLayerName: Default
+  sortingOrder: 10
 --- !u!114 &2012882656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9506,6 +9546,16 @@ MonoBehaviour:
   stepTimeDelta: 0.02
   maxForcePerSource: 100
   maxVelocityMagnitude: 50
+  trajectorySprite: {fileID: -1142722856, guid: 1e7603de516fc384cb9c4baedf8d0548, type: 3}
+  maxTrajectorySprites: 15
+  stepInterval: 13
+  startScale: {x: 1, y: 1, z: 1}
+  minScale: {x: 0.3, y: 0.3, z: 1}
+  minAlpha: 0.1
+  minSpawnDistanceRadius: 0.1
+  revealSpeed: 30
+  sortingLayerName: Interactables
+  sortingOrder: 10
 --- !u!120 &2125146117
 LineRenderer:
   serializedVersion: 2

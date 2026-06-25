@@ -34,6 +34,7 @@ public class Planner : MonoBehaviour
     private bool isPlacementBlocked = false;
     private bool isRepositioningExistingPlanet = false;
     private float currentPlacementCheckRadius = 0.5f; 
+    public bool IsDragging => isDragging;
 
     public void SetCircleLimit(int value) => circleLimit = Mathf.Max(0, value);
     public void SetTriangleLimit(int value) => triangleLimit = Mathf.Max(0, value);

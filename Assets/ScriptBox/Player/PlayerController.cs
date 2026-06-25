@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(LineRenderer))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Launch Settings")]
@@ -17,8 +16,26 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxForcePerSource = 100f;
     [SerializeField] private float maxVelocityMagnitude = 50f;
 
+    [Header("Visual Trajectory Settings")]
+    [SerializeField] private Sprite trajectorySprite;
+    [SerializeField] private int maxTrajectorySprites = 15; 
+    [Range(1, 20)] 
+    [SerializeField] private int stepInterval = 6;           
+    [SerializeField] private Vector3 startScale = Vector3.one;
+    [SerializeField] private Vector3 minScale = new Vector3(0.3f, 0.3f, 1f); 
+    [Range(0f, 1f)]
+    [SerializeField] private float minAlpha = 0.1f;          
+
+    [Header("Cleanliness & Animation Settings")]
+    [SerializeField] private float minSpawnDistanceRadius = 0.8f; 
+    [SerializeField] private float revealSpeed = 30f; 
+    
+    [Header("Sorting Layer Settings")]
+    [SerializeField] private string sortingLayerName = "Default"; 
+    [SerializeField] private int sortingOrder = 10;                
+
     private Rigidbody2D rb;
-    private LineRenderer line;
+    private List<SpriteRenderer> spritePool = new List<SpriteRenderer>();
 
     private bool isAiming;
     private bool hasLockedShot;
@@ -36,17 +53,19 @@ public class PlayerController : MonoBehaviour
     private Vector2 initialLaunchVelocity;
     private bool initialHasLockedShot;
 
-    // Reference to our new animator script
     private PlayerAnimator playerAnimator;
+    private Planner planner; 
+    
+    private float currentAllowedVisibleDots = 0f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        line = GetComponent<LineRenderer>();
         playerAnimator = GetComponent<PlayerAnimator>();
+        planner = FindFirstObjectByType<Planner>(); 
 
-        line.positionCount = 0;
-        line.enabled = false;
+        InitializeSpritePool();
+        SetTrajectoryVisible(false);
     }
 
     private void Start()
@@ -63,6 +82,43 @@ public class PlayerController : MonoBehaviour
         if (GameState.Instance != null)
         {
             GameState.Instance.OnCheckpointSnapped -= UpdateCheckpointSnapshot;
+        }
+    }
+
+    private void InitializeSpritePool()
+    {
+        foreach (var sr in spritePool)
+        {
+            if (sr != null) Destroy(sr.gameObject);
+        }
+        spritePool.Clear();
+
+        for (int i = 0; i < maxTrajectorySprites; i++)
+        {
+            GameObject dot = new GameObject($"TrajectoryDot_{i}");
+            dot.transform.SetParent(this.transform); 
+            dot.transform.localScale = startScale;
+            
+            SpriteRenderer sr = dot.AddComponent<SpriteRenderer>();
+            sr.sprite = trajectorySprite;
+            
+            sr.sortingLayerName = sortingLayerName;
+            sr.sortingOrder = sortingOrder;
+            
+            dot.SetActive(false);
+            spritePool.Add(sr);
+        }
+    }
+
+    private void SetTrajectoryVisible(bool visible)
+    {
+        if (!visible)
+        {
+            foreach (var sr in spritePool)
+            {
+                if (sr != null) sr.gameObject.SetActive(false);
+            }
+            currentAllowedVisibleDots = 0f; 
         }
     }
 
@@ -98,7 +154,6 @@ public class PlayerController : MonoBehaviour
 
         hasLaunchedThisRun = false;
 
-        // Tell the animator to clear any active flashes/hit states
         if (playerAnimator != null)
         {
             playerAnimator.ResetVisuals();
@@ -107,13 +162,12 @@ public class PlayerController : MonoBehaviour
         if (hasLockedShot)
         {
             isAiming = false;
-            line.enabled = true;
             CalculateAndDrawCurvedTrajectory(launchVelocity);
         }
         else
         {
             isAiming = false;
-            line.enabled = false;
+            SetTrajectoryVisible(false);
         }
     }
 
@@ -147,9 +201,20 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePlanning()
     {
-        HandleInput();
+        bool plannerIsBusy = (planner != null && planner.IsDragging);
 
-        if (isAiming)
+        if (!plannerIsBusy)
+        {
+            HandleInput();
+        }
+
+        if (isAiming || hasLockedShot)
+        {
+            currentAllowedVisibleDots += revealSpeed * Time.deltaTime;
+            currentAllowedVisibleDots = Mathf.Min(currentAllowedVisibleDots, maxTrajectorySprites);
+        }
+
+        if (isAiming && !plannerIsBusy)
         {
             UpdateAim();
         }
@@ -186,15 +251,19 @@ public class PlayerController : MonoBehaviour
     {
         isAiming = true;
         hasLockedShot = false;
+        currentAllowedVisibleDots = 0f; 
+        
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         aimStartWorld = rb.position;
-        line.enabled = true;
+        aimCurrentWorld = new Vector2(mouseWorld.x, mouseWorld.y);
+        
+        UpdateAim(); 
     }
 
     private void ModifyExistingAim()
     {
         isAiming = true;
         hasLockedShot = false;
-        line.enabled = true;
 
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 currentMouse = new Vector2(mouseWorld.x, mouseWorld.y);
@@ -220,36 +289,49 @@ public class PlayerController : MonoBehaviour
 
     private void CalculateAndDrawCurvedTrajectory(Vector2 startVelocity)
     {
-        line.enabled = true;
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 currentMousePos = new Vector2(mouseWorld.x, mouseWorld.y);
+        float mouseDistanceFromPlayer = Vector2.Distance(currentMousePos, rb.position);
+        bool plannerIsBusy = (planner != null && planner.IsDragging);
+        if (mouseDistanceFromPlayer < minSpawnDistanceRadius && !plannerIsBusy)
+        {
+            SetTrajectoryVisible(false);
+            return;
+        }
 
-        List<Vector3> simulationPoints = new List<Vector3>();
         Vector2 currentSimPosition = rb.position;
         Vector2 currentSimVelocity = startVelocity;
-
-        simulationPoints.Add(currentSimPosition);
 
         GravityBody bodyComponent = GetComponent<GravityBody>();
         float minEscapeSpeed = bodyComponent != null ? bodyComponent.MinEscapeSpeed : 1.2f;
 
+        int renderedSpriteCount = 0;
+
         for (int step = 0; step < simulationSteps; step++)
         {
+            if (renderedSpriteCount >= maxTrajectorySprites)
+                break;
+
             Vector2 combinedGravityForce = Vector2.zero;
 
-            for (int i = 0; i < GravitySource.ActiveSources.Count; i++)
+            if (GravitySource.ActiveSources != null)
             {
-                GravitySource source = GravitySource.ActiveSources[i];
-                if (source == null || !source.isActiveAndEnabled)
-                    continue;
+                for (int i = 0; i < GravitySource.ActiveSources.Count; i++)
+                {
+                    GravitySource source = GravitySource.ActiveSources[i];
+                    if (source == null || !source.isActiveAndEnabled)
+                        continue;
 
-                Vector2 force = GetSimulatedForceOn(source, currentSimPosition, currentSimVelocity, minEscapeSpeed);
+                    Vector2 force = GetSimulatedForceOn(source, currentSimPosition, currentSimVelocity, minEscapeSpeed);
 
-                if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsInfinity(force.x) || float.IsInfinity(force.y))
-                    continue;
+                    if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsInfinity(force.x) || float.IsInfinity(force.y))
+                        continue;
 
-                if (force.sqrMagnitude > maxForcePerSource * maxForcePerSource)
-                    force = force.normalized * maxForcePerSource;
+                    if (force.sqrMagnitude > maxForcePerSource * maxForcePerSource)
+                        force = force.normalized * maxForcePerSource;
 
-                combinedGravityForce += force;
+                    combinedGravityForce += force;
+                }
             }
 
             currentSimVelocity += combinedGravityForce * stepTimeDelta;
@@ -260,11 +342,38 @@ public class PlayerController : MonoBehaviour
             }
 
             currentSimPosition += currentSimVelocity * stepTimeDelta;
-            simulationPoints.Add(currentSimPosition);
+
+            if (step % stepInterval == 0)
+            {
+                float distanceFromPlayer = Vector2.Distance(currentSimPosition, rb.position);
+                bool isValidPosition = !float.IsNaN(currentSimPosition.x) && !float.IsNaN(currentSimPosition.y);
+
+                if (isValidPosition && distanceFromPlayer >= minSpawnDistanceRadius)
+                {
+                    if (renderedSpriteCount < currentAllowedVisibleDots)
+                    {
+                        SpriteRenderer sr = spritePool[renderedSpriteCount];
+                        sr.transform.position = currentSimPosition;
+                        
+                        float progress = (float)renderedSpriteCount / maxTrajectorySprites;
+                        sr.transform.localScale = Vector3.Lerp(startScale, minScale, progress);
+                        
+                        float alpha = Mathf.Lerp(1f, minAlpha, progress);
+                        sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
+
+                        sr.gameObject.SetActive(true);
+                    }
+                    
+                    renderedSpriteCount++; 
+                }
+            }
         }
 
-        line.positionCount = simulationPoints.Count;
-        line.SetPositions(simulationPoints.ToArray());
+        for (int i = renderedSpriteCount; i < maxTrajectorySprites; i++)
+        {
+            if (i >= 0 && i < spritePool.Count && spritePool[i] != null)
+                spritePool[i].gameObject.SetActive(false);
+        }
     }
 
     private Vector2 GetSimulatedForceOn(GravitySource source, Vector2 position, Vector2 velocity, float minEscapeSpeed)
@@ -290,7 +399,7 @@ public class PlayerController : MonoBehaviour
             Vector2 tangent = new Vector2(-inwardDir.y, inwardDir.x);
 
             if (Vector2.Dot(velocity, tangent) < 0f)
-                tangent = -tangent;
+                 tangent = -tangent;
 
             float assist01 = Mathf.Clamp01(1f - (distance / source.TangentialAssistRadius));
             float assistStrength = source.GravityStrength * source.TangentialAssist * assist01 * assist01;
@@ -312,21 +421,19 @@ public class PlayerController : MonoBehaviour
     {
         isAiming = false;
         hasLockedShot = true;
-        line.enabled = true;
-
         CaptureSnapshot();
     }
 
     private void EnterRunning()
     {
         isAiming = false;
-        line.enabled = false;
+        SetTrajectoryVisible(false);
         hasLaunchedThisRun = false;
     }
 
     private void ForceRunningRules()
     {
-        line.enabled = false;
+        SetTrajectoryVisible(false);
 
         if (hasLaunchedThisRun)
             return;
