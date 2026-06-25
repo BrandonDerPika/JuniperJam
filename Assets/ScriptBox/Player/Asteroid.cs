@@ -48,7 +48,6 @@ public class Asteroid : MonoBehaviour
 
     private void HandleCheckpointSnapped()
     {
-        // Capture exact physics snapshot when checkpoint triggers
         initialPosition = rb.position;
         initialVelocity = rb.velocity;
     }
@@ -66,10 +65,18 @@ public class Asteroid : MonoBehaviour
     private void TriggerGameOver()
     {
         Debug.Log("Player hit an asteroid! Resetting game state phase.");
+
+        // 🔊 PLAY DEATH SFX
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.PlayPlayerDeath();
+
         if (GameState.Instance != null)
         {
-            // Reset to Pause state if checkpoint was unlocked, otherwise back to normal Planning
-            GameState.Instance.SetPhase(Checkpoint.HasReachedCheckpoint ? GameState.Phase.Pause : GameState.Phase.Planning);
+            GameState.Instance.SetPhase(
+                Checkpoint.HasReachedCheckpoint
+                    ? GameState.Phase.Pause
+                    : GameState.Phase.Planning
+            );
         }
     }
 
@@ -96,15 +103,22 @@ public class Asteroid : MonoBehaviour
         if (collision.gameObject.CompareTag("Destroyer"))
         {
             Rigidbody2D destroyerRb = collision.gameObject.GetComponent<Rigidbody2D>();
+
             if (destroyerRb != null)
             {
                 Vector2 centerLine = rb.position - destroyerRb.position;
-                Vector2 transferDirection = centerLine.sqrMagnitude > 0.001f ? centerLine.normalized : collision.relativeVelocity.normalized;
+                Vector2 transferDirection =
+                    centerLine.sqrMagnitude > 0.001f
+                        ? centerLine.normalized
+                        : collision.relativeVelocity.normalized;
 
                 float incomingSpeed = collision.relativeVelocity.magnitude;
-                if (incomingSpeed <= 0.001f || float.IsNaN(incomingSpeed)) return;
 
-                float transferredVelocity = incomingSpeed * 1.2f; 
+                if (incomingSpeed <= 0.001f || float.IsNaN(incomingSpeed))
+                    return;
+
+                float transferredVelocity = incomingSpeed * 1.2f;
+
                 rb.velocity = transferDirection * transferredVelocity;
 
                 Debug.Log($"{gameObject.name} physically deflected by Destroyer.");

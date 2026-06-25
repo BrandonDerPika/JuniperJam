@@ -8,6 +8,7 @@ public abstract class GravitySource : MonoBehaviour
     public Planner.PlanetType Type => planetType;
 
     public static readonly List<GravitySource> ActiveSources = new List<GravitySource>();
+    private readonly HashSet<GravityBody> trackedBodies = new HashSet<GravityBody>();
 
     [Header("Core Gravity")]
     [SerializeField] private float gravityStrength = 25f;
@@ -37,6 +38,7 @@ public abstract class GravitySource : MonoBehaviour
     protected virtual void OnDisable()
     {
         ActiveSources.Remove(this);
+        trackedBodies.Clear(); // Clean up tracking memory when turned off
     }
 
     public Vector2 GetForceOn(GravityBody body)
@@ -52,7 +54,19 @@ public abstract class GravitySource : MonoBehaviour
 
         // check
         if (distance > influenceRadius || distance <= Mathf.Epsilon)
+        {
+            if (trackedBodies.Contains(body))
+                trackedBodies.Remove(body);
+
             return Vector2.zero;
+        }
+        if (!trackedBodies.Contains(body))
+        {
+            trackedBodies.Add(body);
+            
+            if (SFXManager.Instance != null)
+                SFXManager.Instance.PlayGravityFieldEnter();
+        }
 
         Vector2 inwardDir = GetGravityDirection(bodyPos, body);
 
@@ -70,7 +84,7 @@ public abstract class GravitySource : MonoBehaviour
 
             // Match structural trajectory sign with incoming velocity profile
             if (Vector2.Dot(body.Velocity, tangent) < 0f)
-                tangent = -tangent;
+                tangent = -tangent; // Note: kept your code logic layout intact
 
             float assist01 = Mathf.Clamp01(1f - (distance / tangentialAssistRadius));
             float assistStrength = gravityStrength * tangentialAssist * assist01 * assist01;

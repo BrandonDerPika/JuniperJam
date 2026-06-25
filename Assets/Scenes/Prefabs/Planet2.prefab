@@ -73,12 +73,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: ea0f190dc8bff2548bb3350a89c2c906, type: 3}
+  m_Sprite: {fileID: 6686583, guid: 4f14e95b84d2ed64293caccf481fe17f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3, y: 2.19}
+  m_Size: {x: 0.9, y: 0.72}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 9085106207498956690}
   - component: {fileID: 2896591280642059569}
   - component: {fileID: 2561631266724858210}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Planet2
   m_TagString: Planet
   m_Icon: {fileID: 0}

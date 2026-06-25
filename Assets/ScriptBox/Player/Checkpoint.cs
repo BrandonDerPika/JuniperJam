@@ -8,7 +8,6 @@ public class Checkpoint : MonoBehaviour
 
     private void Start()
     {
-        // Reset static data on level load
         HasReachedCheckpoint = false;
     }
 
@@ -20,15 +19,11 @@ public class Checkpoint : MonoBehaviour
         {
             isTriggered = true;
             HasReachedCheckpoint = true;
-            
-            Debug.Log("Checkpoint Reached! Capturing snapshot across all space objects.");
-
+            if (SFXManager.Instance != null)
+                SFXManager.Instance.PlayCheckpoint();
             if (GameState.Instance != null)
             {
-                // Freeze
                 GameState.Instance.TriggerCheckpoint();
-                
-                // Pause dynamic objects
                 GameState.Instance.SetPhase(GameState.Phase.Pause);
             }
         }

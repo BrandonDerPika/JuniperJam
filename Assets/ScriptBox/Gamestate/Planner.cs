@@ -34,6 +34,8 @@ public class Planner : MonoBehaviour
     private bool isPlacementBlocked = false;
     private bool isRepositioningExistingPlanet = false;
     private float currentPlacementCheckRadius = 0.5f; 
+    private Vector2 originalPlanetPosition;
+
     public bool IsDragging => isDragging;
 
     public void SetCircleLimit(int value) => circleLimit = Mathf.Max(0, value);
@@ -48,25 +50,19 @@ public class Planner : MonoBehaviour
         if (!GameState.Instance.IsPlanningOrPaused)
         {
             if (isDragging)
-            {
                 CancelDrag();
-            }
+
             return;
         }
 
         if (isDragging)
-        {
             HandleDragMovement();
-        }
         else
-        {
-            HandleRepositioningCheck(); 
-        }
-        
+            HandleRepositioningCheck();
+
         HandleDeletion();
     }
 
-    // Called by ui buttons
     public void StartDraggingPlanet(int typeIndex)
     {
         if (!GameState.Instance.IsPlanningOrPaused || isDragging)
@@ -83,21 +79,20 @@ public class Planner : MonoBehaviour
 
         Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
         currentDragPreview = Instantiate(prefab, worldPos, Quaternion.identity);
-        
+
         isRepositioningExistingPlanet = false;
         CalculateDynamicRadius(currentDragPreview);
         TogglePhysicsInteractions(currentDragPreview, false);
         SetObjectColor(currentDragPreview, Color.white, dragOpacity);
 
         isDragging = true;
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.StartDrag();
 
         if (bottomPanel != null)
-        {
             bottomPanel.SlideDownForDrag();
-        }
     }
 
-    // checks for left click holds on existing objects in world space
     private void HandleRepositioningCheck()
     {
         if (!Input.GetMouseButtonDown(0))
@@ -109,22 +104,24 @@ public class Planner : MonoBehaviour
         if (hit.collider != null && hit.collider.CompareTag("Planet"))
         {
             GravitySource source = hit.collider.GetComponent<GravitySource>();
+
             if (source != null)
             {
                 currentDragPreview = hit.collider.gameObject;
                 selectedType = source.Type;
-                isRepositioningExistingPlanet = true; 
+                isRepositioningExistingPlanet = true;
+                originalPlanetPosition = currentDragPreview.transform.position;
 
                 CalculateDynamicRadius(currentDragPreview);
                 TogglePhysicsInteractions(currentDragPreview, false);
                 SetObjectColor(currentDragPreview, Color.white, dragOpacity);
 
                 isDragging = true;
+                if (SFXManager.Instance != null)
+                    SFXManager.Instance.StartDrag();
 
                 if (bottomPanel != null)
-                {
                     bottomPanel.SlideDownForDrag();
-                }
             }
         }
     }
@@ -134,16 +131,24 @@ public class Planner : MonoBehaviour
         Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
         currentDragPreview.transform.position = worldPos;
 
-        Collider2D hit = Physics2D.OverlapCircle(worldPos, currentPlacementCheckRadius, blockingLayers);
-        
-        if (hit != null && hit.gameObject == currentDragPreview)
+        Collider2D[] hits = Physics2D.OverlapCircleAll(worldPos, currentPlacementCheckRadius, blockingLayers);
+        isPlacementBlocked = false;
+
+        foreach (var hit in hits)
         {
-            hit = null; 
+            if (hit == null) continue;
+
+            if (hit.gameObject == currentDragPreview || hit.transform.IsChildOf(currentDragPreview.transform))
+            {
+                continue; 
+            }
+
+            isPlacementBlocked = true;
+            break;
         }
 
-        if (hit != null)
+        if (isPlacementBlocked)
         {
-            isPlacementBlocked = true;
             SetObjectColor(currentDragPreview, Color.red, dragOpacity);
         }
         else
@@ -155,13 +160,9 @@ public class Planner : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             if (isPlacementBlocked)
-            {
-                CancelDrag(); 
-            }
+                CancelDrag();
             else
-            {
                 FinalizePlacement();
-            }
         }
     }
 
@@ -169,20 +170,21 @@ public class Planner : MonoBehaviour
     {
         TogglePhysicsInteractions(currentDragPreview, true);
         SetObjectColor(currentDragPreview, Color.white, 1f);
-        
+
         if (!isRepositioningExistingPlanet)
-        {
             ModifyLimit(selectedType, -1);
-        }
-        
+
         currentDragPreview = null;
         isDragging = false;
         isRepositioningExistingPlanet = false;
 
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.StopDrag();
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.PlayPlacePlanet();
+
         if (bottomPanel != null)
-        {
             bottomPanel.SlideUpAfterDrag();
-        }
     }
 
     private void CancelDrag()
@@ -191,6 +193,8 @@ public class Planner : MonoBehaviour
         {
             if (isRepositioningExistingPlanet)
             {
+                currentDragPreview.transform.position = originalPlanetPosition;
+                
                 TogglePhysicsInteractions(currentDragPreview, true);
                 SetObjectColor(currentDragPreview, Color.white, 1f);
             }
@@ -199,15 +203,18 @@ public class Planner : MonoBehaviour
                 Destroy(currentDragPreview);
             }
         }
-        
+
         isDragging = false;
         isRepositioningExistingPlanet = false;
         currentDragPreview = null;
+        
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.StopDrag();
+
+        // Error Sound?
 
         if (bottomPanel != null)
-        {
             bottomPanel.SlideUpAfterDrag();
-        }
     }
 
     private void HandleDeletion()
@@ -224,6 +231,7 @@ public class Planner : MonoBehaviour
         if (hit.collider != null && hit.collider.CompareTag("Planet"))
         {
             GravitySource source = hit.collider.GetComponent<GravitySource>();
+
             if (source != null)
             {
                 ModifyLimit(source.Type, 1);
@@ -282,25 +290,22 @@ public class Planner : MonoBehaviour
     private void CalculateDynamicRadius(GameObject targetObj)
     {
         Collider2D col = targetObj.GetComponent<Collider2D>();
+
         if (col != null)
-        {
             currentPlacementCheckRadius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.y) + radiusBuffer;
-        }
         else
-        {
             currentPlacementCheckRadius = 0.5f;
-        }
     }
 
     private void TogglePhysicsInteractions(GameObject obj, bool isSolid)
     {
         Collider2D[] colliders = obj.GetComponentsInChildren<Collider2D>();
+
         foreach (var col in colliders)
-        {
             col.isTrigger = !isSolid;
-        }
 
         Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+
         if (rb != null)
         {
             if (!isSolid)
@@ -319,6 +324,7 @@ public class Planner : MonoBehaviour
     private void SetObjectColor(GameObject obj, Color targetColor, float alpha)
     {
         SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
+
         if (spriteRenderer != null)
         {
             targetColor.a = alpha;
