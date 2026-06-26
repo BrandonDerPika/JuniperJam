@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -10,16 +11,32 @@ public class Destroyer : MonoBehaviour
     [Header("Safety Speed Caps")]
     [SerializeField] private float absoluteMaxLaunchSpeed = 40f; 
 
+    [Header("Hit Visuals")]
+    [SerializeField] private SpriteRenderer targetRenderer;
+    [SerializeField] private Sprite alternateHitSprite;
+
     private Rigidbody2D rb;
     private Vector2 initialPosition;
     private Vector2 initialVelocity;
     private bool isSubscribed = false;
+    private Sprite defaultSprite;
+    private Coroutine flashRoutine;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         initialPosition = rb.position;
         initialVelocity = rb.velocity;
+
+        if (targetRenderer == null)
+        {
+            targetRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        if (targetRenderer != null)
+        {
+            defaultSprite = targetRenderer.sprite;
+        }
     }
 
     private void OnEnable()
@@ -65,6 +82,17 @@ public class Destroyer : MonoBehaviour
             rb.position = initialPosition;
             rb.velocity = initialVelocity;
             rb.angularVelocity = 0f; 
+
+            if (flashRoutine != null)
+            {
+                StopCoroutine(flashRoutine);
+                flashRoutine = null;
+            }
+
+            if (targetRenderer != null)
+            {
+                targetRenderer.sprite = defaultSprite;
+            }
         }
     }
 
@@ -72,7 +100,24 @@ public class Destroyer : MonoBehaviour
     {
         if (GameState.Instance == null || !GameState.Instance.IsRunning) return;
 
-        if (collision.gameObject.CompareTag("Player"))
+        bool isPlayer = collision.gameObject.CompareTag("Player");
+        bool isAsteroid = collision.gameObject.CompareTag("Asteroid");
+
+        if (isPlayer || isAsteroid)
+        {
+            if (SFXManager.Instance != null)
+            {
+                SFXManager.Instance.PlayRandomExplosion();
+            }
+
+            if (flashRoutine != null)
+            {
+                StopCoroutine(flashRoutine);
+            }
+            flashRoutine = StartCoroutine(FlashSpriteRoutine());
+        }
+
+        if (isPlayer)
         {
             Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
             if (playerRb != null)
@@ -103,5 +148,22 @@ public class Destroyer : MonoBehaviour
                 playerRb.velocity = playerDeflectionDirection * (incomingSpeed * playerSpeedRetention);
             }
         }
+    }
+
+    private IEnumerator FlashSpriteRoutine()
+    {
+        if (targetRenderer != null && alternateHitSprite != null)
+        {
+            targetRenderer.sprite = alternateHitSprite;
+        }
+
+        yield return new WaitForSeconds(0.25f);
+
+        if (targetRenderer != null)
+        {
+            targetRenderer.sprite = defaultSprite;
+        }
+
+        flashRoutine = null;
     }
 }

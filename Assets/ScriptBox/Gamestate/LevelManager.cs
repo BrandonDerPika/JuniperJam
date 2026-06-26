@@ -23,6 +23,9 @@ public class LevelManager : MonoBehaviour
 
         [Header("VFX Configuration")]
         public Transform waveOriginObject; 
+
+        [Header("Dialogue Configuration")]
+        [TextArea(3, 5)] public List<string> levelDialogue;
     }
 
     [Header("Level Configuration")]
@@ -109,6 +112,11 @@ public class LevelManager : MonoBehaviour
         if (cameraPanScript != null)
         {
             cameraPanScript.SetCameraLock(false);
+        }
+
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.StartDialogue(currentLevel.levelDialogue);
         }
         
         isTransitioning = false;
