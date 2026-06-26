@@ -55,6 +55,11 @@ public class MusicManager : MonoBehaviour
 
     private IEnumerator Crossfade(bool toPlanning)
     {
+        if (!toPlanning)
+        {
+            runningSource.time = Random.value > 0.5f ? 10f : 0f;
+        }
+
         float timer = 0f;
 
         float planningStart = planningSource.volume;

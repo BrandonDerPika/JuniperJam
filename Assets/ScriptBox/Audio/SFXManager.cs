@@ -11,6 +11,7 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private AudioSource loopSource;
 
     [Header("Sound Effects")]
+    [SerializeField] private AudioClip startLevelSFX;
     [SerializeField] private AudioClip targetHitSFX;
     [SerializeField] private AudioClip checkpointSFX;
     [SerializeField] private AudioClip playerDeathSFX;
@@ -49,6 +50,12 @@ public class SFXManager : MonoBehaviour
     }
 
 // once
+    public void PlayStartLevel()
+    {
+        if (startLevelSFX != null && sfxSource != null)
+            sfxSource.PlayOneShot(startLevelSFX);
+    }
+
     public void PlayTargetHit()
     {
         if (targetHitSFX != null)

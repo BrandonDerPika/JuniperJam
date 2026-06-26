@@ -70,6 +70,16 @@ public class GameState : MonoBehaviour
         }
     }
 
+    public void SetToRunningPhase()
+    {
+        SetPhase(Phase.Running);
+    }
+
+    public void SetToPlanningPhase()
+    {
+        SetPhase(Checkpoint.HasReachedCheckpoint ? Phase.Pause : Phase.Planning);
+    }
+
     public void SetPhase(Phase newPhase)
     {
         if (currentPhase == newPhase)

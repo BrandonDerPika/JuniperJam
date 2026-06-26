@@ -106,7 +106,11 @@ public class LevelManager : MonoBehaviour
             transitionAnimator.gameObject.SetActive(false);
         }
 
-        if (cameraPanScript != null) cameraPanScript.SetCameraLock(false);
+        if (cameraPanScript != null)
+        {
+            cameraPanScript.SetCameraLock(false);
+        }
+        
         isTransitioning = false;
     }
 
@@ -146,24 +150,22 @@ public class LevelManager : MonoBehaviour
                 localWaveSettings.waveColor,
                 localWaveSettings.uniqueHitTargets,
                 localWaveSettings.defaultAnimatorTrigger,
-                localWaveSettings.fallbackDarkenColor
+                localWaveSettings.fallbackDarkenColor,
+                localWaveSettings.ignoreTag
             );
         }
         else
         {
-            activeWaveScript.InitializeCustom(8f, 12f, 0.25f, 60, Color.white, new List<BorderWave.UniqueHitTarget>(), "Explode", Color.gray);
+            activeWaveScript.InitializeCustom(8f, 12f, 0.25f, 60, Color.white, new List<BorderWave.UniqueHitTarget>(), "Explode", Color.gray, "IgnoreWave");
         }
 
         if (cameraPanScript != null)
         {
             cameraPanScript.SetCameraLock(true);
-        }
-
-        if (cameraPanScript != null)
-        {
-            cameraPanScript.SetPanTarget(targetPosition);
+            Vector3 camTargetPosition = new Vector3(targetPosition.x, targetPosition.y, -10f);
+            cameraPanScript.SetPanTarget(camTargetPosition);
             
-            while (Vector2.Distance(cameraPanScript.transform.position, targetPosition) > 0.05f)
+            while (Vector2.Distance(cameraPanScript.transform.position, camTargetPosition) > 0.05f)
             {
                 yield return null; 
             }
@@ -184,7 +186,17 @@ public class LevelManager : MonoBehaviour
         }
         else
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        if (cameraPanScript != null)
+        {
+            cameraPanScript.SetPanTarget(new Vector3(0f, 0f, -10f));
+        }
+
+        if (transitionAnimator == null)
+        {
+            yield return new WaitForSeconds(0.25f);
         }
 
         int nextLevel = currentLevelIndex + 1;

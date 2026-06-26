@@ -21,9 +21,14 @@ public class BorderWave : MonoBehaviour
     public Color waveColor = Color.white;
 
     [Header("On Hit Effects")]
+    public string ignoreTag = "IgnoreWave";
     public List<UniqueHitTarget> uniqueHitTargets = new List<UniqueHitTarget>();
     public string defaultAnimatorTrigger = "Explode";
     public Color fallbackDarkenColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+
+    [Header("Explosion Visuals")]
+    [SerializeField] private GameObject explosionPrefab;
+    [SerializeField] private float explosionScaleMultiplier = 1f;
 
     private LineRenderer lineRenderer;
     private float currentRadius = 0f;
@@ -39,7 +44,7 @@ public class BorderWave : MonoBehaviour
     }
 
     public void InitializeCustom(float speed, float radius, float thick, int segs, Color col, 
-                                 List<UniqueHitTarget> customTargets, string defaultTrigger, Color darkenColor)
+                                 List<UniqueHitTarget> customTargets, string defaultTrigger, Color darkenColor, string customIgnoreTag)
     {
         expansionSpeed = speed;
         maxRadius = radius;
@@ -49,6 +54,14 @@ public class BorderWave : MonoBehaviour
         uniqueHitTargets = new List<UniqueHitTarget>(customTargets);
         defaultAnimatorTrigger = defaultTrigger;
         fallbackDarkenColor = darkenColor;
+        ignoreTag = customIgnoreTag;
+
+        BorderWave settingsSource = LevelManager.Instance != null ? LevelManager.Instance.GetComponent<BorderWave>() : null;
+        if (settingsSource != null)
+        {
+            explosionPrefab = settingsSource.explosionPrefab;
+            explosionScaleMultiplier = settingsSource.explosionScaleMultiplier;
+        }
 
         lineRenderer.positionCount = segments + 1;
         lineRenderer.useWorldSpace = false;
@@ -99,6 +112,7 @@ public class BorderWave : MonoBehaviour
             if (renderer == null || !renderer.gameObject.activeInHierarchy) continue;
             if (hitObjects.Contains(renderer.gameObject)) continue;
             if (renderer.gameObject == gameObject || renderer.transform == transform.parent) continue;
+            if (!string.IsNullOrEmpty(ignoreTag) && renderer.gameObject.CompareTag(ignoreTag)) continue;
 
             float distance = Vector2.Distance(transform.position, renderer.transform.position);
 
@@ -122,6 +136,14 @@ public class BorderWave : MonoBehaviour
         {
             SFXManager.Instance.PlayRandomExplosion();
         }
+
+        if (explosionPrefab != null)
+        {
+            GameObject explosionInstance = Instantiate(explosionPrefab, targetGo.transform.position, Quaternion.identity);
+            explosionInstance.transform.localScale = targetGo.transform.localScale * explosionScaleMultiplier;
+            StartCoroutine(DestroyAfterAnimation(explosionInstance));
+        }
+
         foreach (UniqueHitTarget targetRule in uniqueHitTargets)
         {
             if (!string.IsNullOrEmpty(targetRule.objectIdentifier) && objectName.Contains(targetRule.objectIdentifier))
@@ -132,6 +154,7 @@ public class BorderWave : MonoBehaviour
                 break;
             }
         }
+
         Animator animator = targetGo.GetComponent<Animator>();
         if (animator == null)
         {
@@ -153,6 +176,26 @@ public class BorderWave : MonoBehaviour
             {
                 targetRenderer.color = fallbackDarkenColor;
             }
+        }
+    }
+
+    private IEnumerator DestroyAfterAnimation(GameObject clone)
+    {
+        if (clone == null) yield break;
+
+        Animator animator = clone.GetComponent<Animator>();
+        if (animator == null) animator = clone.GetComponentInChildren<Animator>();
+
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            yield return null;
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            yield return new WaitForSeconds(stateInfo.length);
+        }
+
+        if (clone != null)
+        {
+            Destroy(clone);
         }
     }
 

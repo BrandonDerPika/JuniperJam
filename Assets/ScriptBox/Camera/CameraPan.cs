@@ -101,21 +101,21 @@ public class CameraPan : MonoBehaviour
         }
 
         input.Normalize();
-        targetPosition += input * moveSpeed * Time.deltaTime;
+        
+        targetPosition.x += input.x * moveSpeed * Time.deltaTime;
+        targetPosition.y += input.y * moveSpeed * Time.deltaTime;
     }
 
     private void LateUpdate()
     {
-        // Keep the camera's original Z depth
-        Vector3 destination = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
-        
         transform.position = Vector3.SmoothDamp(
             transform.position,
-            destination,
+            targetPosition,
             ref velocity,
             smoothTime
         );
     }
+    
     public void SetCameraLock(bool shouldLock)
     {
         isLockedBySequence = shouldLock;
