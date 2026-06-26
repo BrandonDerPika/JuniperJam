@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e2ae385cdb045b1489e4faadc3465a29
+guid: 4e08b5ad42bc6ed478afa98b87dbcc5e
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -124,8 +124,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1fb768e1311f3b94eb22ed0eda554991
-      internalID: -1844967195
+      spriteID: 23135b2f6ec22d641bf20ed946319e53
+      internalID: 572062861
       vertices: []
       indices: 
       edges: []
@@ -145,8 +145,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a5c91e535c7d6774d9a40298366c21f3
-      internalID: 1193637021
+      spriteID: db4121ab572f7f04488f77793fae7973
+      internalID: -1397896085
       vertices: []
       indices: 
       edges: []
@@ -166,8 +166,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 354d85e611e95934d8ac2372089cca73
-      internalID: 1587424391
+      spriteID: 3947853582b85664eb599b8c54f99c9c
+      internalID: 1698715212
       vertices: []
       indices: 
       edges: []
@@ -183,9 +183,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      StarRed_animation_0: -1844967195
-      StarRed_animation_1: 1193637021
-      StarRed_animation_2: 1587424391
+      StarRed_animation_0: 572062861
+      StarRed_animation_1: -1397896085
+      StarRed_animation_2: 1698715212
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
