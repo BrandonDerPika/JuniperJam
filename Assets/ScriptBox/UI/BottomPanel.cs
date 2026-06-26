@@ -5,6 +5,7 @@ public class BottomPanel : MonoBehaviour
 {
     [Header("UI Panels")]
     public GameObject panelA;
+    public GameObject transformParent;
     public GameObject panelB;
 
     [Header("Movement Settings")]
@@ -13,12 +14,15 @@ public class BottomPanel : MonoBehaviour
 
     private RectTransform panelBRect;
     private Vector2 panelBOriginalPosition;
+    private bool isAnimatingDown = false;
+
+    public bool IsAnimatingDown => isAnimatingDown;
 
     void Start()
     {
-        if (panelB != null)
+        if (transformParent != null)
         {
-            panelBRect = panelB.GetComponent<RectTransform>();
+            panelBRect = transformParent.GetComponent<RectTransform>();
             panelBOriginalPosition = panelBRect.anchoredPosition;
         }
     }
@@ -26,6 +30,7 @@ public class BottomPanel : MonoBehaviour
     // Called by Button 1
     public void OnClickButton1()
     {
+        isAnimatingDown = false;
         panelB.SetActive(true);
         panelBRect.anchoredPosition = panelBOriginalPosition; 
         
@@ -39,12 +44,14 @@ public class BottomPanel : MonoBehaviour
     // Called by Button 2
     public void OnClickButton2()
     {
+        isAnimatingDown = true;
         panelA.SetActive(true); 
 
         StopAllCoroutines();
         StartCoroutine(MoveUI(panelBRect, panelBOriginalPosition, () => 
         {
             panelB.SetActive(false);
+            isAnimatingDown = false;
         }));
     }
 

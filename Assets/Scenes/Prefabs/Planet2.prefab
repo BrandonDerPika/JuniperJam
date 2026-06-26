@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60f355d1a02c1c469b7015de0cefc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  planetType: 0
+  planetType: 1
   gravityStrength: 0.8
   influenceRadius: 1
   softening: 0.2

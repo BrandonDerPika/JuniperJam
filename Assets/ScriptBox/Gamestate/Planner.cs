@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Planner : MonoBehaviour
 {
@@ -19,6 +20,11 @@ public class Planner : MonoBehaviour
     [SerializeField] private int triangleLimit = 1;
     [SerializeField] private int squareLimit = 0;
 
+    [Header("UI Buttons")]
+    [SerializeField] private Button circleButton;
+    [SerializeField] private Button triangleButton;
+    [SerializeField] private Button squareButton;
+
     [Header("References")]
     [SerializeField] private Camera cam;
     [Range(0f, 1f)] [SerializeField] private float dragOpacity = 0.5f;
@@ -35,12 +41,32 @@ public class Planner : MonoBehaviour
     private bool isRepositioningExistingPlanet = false;
     private float currentPlacementCheckRadius = 0.5f; 
     private Vector2 originalPlanetPosition;
+    private bool wasMenuOpenBeforeDrag = false;
 
     public bool IsDragging => isDragging;
 
-    public void SetCircleLimit(int value) => circleLimit = Mathf.Max(0, value);
-    public void SetTriangleLimit(int value) => triangleLimit = Mathf.Max(0, value);
-    public void SetSquareLimit(int value) => squareLimit = Mathf.Max(0, value);
+    public void SetCircleLimit(int value) 
+    {
+        circleLimit = Mathf.Max(0, value);
+        UpdateButtonInteractableStates();
+    }
+    
+    public void SetTriangleLimit(int value) 
+    {
+        triangleLimit = Mathf.Max(0, value);
+        UpdateButtonInteractableStates();
+    }
+    
+    public void SetSquareLimit(int value) 
+    {
+        squareLimit = Mathf.Max(0, value);
+        UpdateButtonInteractableStates();
+    }
+
+    private void Start()
+    {
+        UpdateButtonInteractableStates();
+    }
 
     private void Update()
     {
@@ -90,7 +116,13 @@ public class Planner : MonoBehaviour
             SFXManager.Instance.StartDrag();
 
         if (bottomPanel != null)
-            bottomPanel.SlideDownForDrag();
+        {
+            wasMenuOpenBeforeDrag = bottomPanel.panelB.activeSelf && !bottomPanel.IsAnimatingDown;
+            if (wasMenuOpenBeforeDrag)
+            {
+                bottomPanel.OnClickButton2();
+            }
+        }
     }
 
     private void HandleRepositioningCheck()
@@ -121,7 +153,13 @@ public class Planner : MonoBehaviour
                     SFXManager.Instance.StartDrag();
 
                 if (bottomPanel != null)
-                    bottomPanel.SlideDownForDrag();
+                {
+                    wasMenuOpenBeforeDrag = bottomPanel.panelB.activeSelf && !bottomPanel.IsAnimatingDown;
+                    if (wasMenuOpenBeforeDrag)
+                    {
+                        bottomPanel.OnClickButton2();
+                    }
+                }
             }
         }
     }
@@ -183,8 +221,10 @@ public class Planner : MonoBehaviour
         if (SFXManager.Instance != null)
             SFXManager.Instance.PlayPlacePlanet();
 
-        if (bottomPanel != null)
-            bottomPanel.SlideUpAfterDrag();
+        if (bottomPanel != null && wasMenuOpenBeforeDrag)
+        {
+            bottomPanel.OnClickButton1();
+        }
     }
 
     private void CancelDrag()
@@ -211,10 +251,12 @@ public class Planner : MonoBehaviour
         if (SFXManager.Instance != null)
             SFXManager.Instance.StopDrag();
 
-        // Error Sound?
+        UpdateButtonInteractableStates();
 
-        if (bottomPanel != null)
-            bottomPanel.SlideUpAfterDrag();
+        if (bottomPanel != null && wasMenuOpenBeforeDrag)
+        {
+            bottomPanel.OnClickButton1();
+        }
     }
 
     private void HandleDeletion()
@@ -269,6 +311,40 @@ public class Planner : MonoBehaviour
             case PlanetType.Square:
                 squareLimit = Mathf.Max(0, squareLimit + change);
                 break;
+        }
+
+        UpdateButtonInteractableStates();
+    }
+
+    private void UpdateButtonInteractableStates()
+    {
+        if (circleButton != null)
+        {
+            circleButton.interactable = circleLimit > 0;
+            SetChildIconVisuals(circleButton, circleLimit > 0);
+        }
+
+        if (triangleButton != null)
+        {
+            triangleButton.interactable = triangleLimit > 0;
+            SetChildIconVisuals(triangleButton, triangleLimit > 0);
+        }
+
+        if (squareButton != null)
+        {
+            squareButton.interactable = squareLimit > 0;
+            SetChildIconVisuals(squareButton, squareLimit > 0);
+        }
+    }
+    private void SetChildIconVisuals(Button button, bool isAvailable)
+    {
+        foreach (Transform child in button.transform)
+        {
+            Image childImg = child.GetComponent<Image>();
+            if (childImg != null)
+            {
+                childImg.color = isAvailable ? Color.white : new Color(0.4f, 0.4f, 0.4f, 0.6f);
+            }
         }
     }
 

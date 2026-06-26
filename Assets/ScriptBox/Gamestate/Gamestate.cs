@@ -43,13 +43,13 @@ public class GameState : MonoBehaviour
         ApplyPhase(currentPhase);
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            TogglePhase();
-        }
-    }
+    // private void Update()
+    // {
+    //     if (Input.GetKeyDown(KeyCode.E))
+    //     {
+    //         TogglePhase();
+    //     }
+    // }
 
     public void TogglePhase()
     {
@@ -87,13 +87,11 @@ public class GameState : MonoBehaviour
             case Phase.Planning:
             case Phase.Pause:
                 GravitySystem.SetGravityEnabled(false);
-                Debug.Log($"Resetting to {phase}...");
                 OnPlanningStarted?.Invoke();
                 break;
 
             case Phase.Running:
                 GravitySystem.SetGravityEnabled(true);
-                Debug.Log("Running...");
                 OnRunningStarted?.Invoke();
                 break;
         }
