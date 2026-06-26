@@ -38,6 +38,8 @@ public class CameraPan : MonoBehaviour
     private Vector3 velocity;
     private Camera uiCamera; 
 
+    private bool isLockedBySequence = false;
+
     private void Start()
     {
         targetPosition = transform.position;
@@ -53,7 +55,7 @@ public class CameraPan : MonoBehaviour
     private void Update()
     {
         UpdateUIElements();
-
+        if (isLockedBySequence) return;
         if (!canMoveHorizontal && !canMoveVertical) return;
 
         Vector2 mousePos = Input.mousePosition;
@@ -99,30 +101,45 @@ public class CameraPan : MonoBehaviour
         }
 
         input.Normalize();
-
         targetPosition += input * moveSpeed * Time.deltaTime;
     }
 
     private void LateUpdate()
     {
+        // Keep the camera's original Z depth
+        Vector3 destination = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
+        
         transform.position = Vector3.SmoothDamp(
             transform.position,
-            targetPosition,
+            destination,
             ref velocity,
             smoothTime
         );
     }
+    public void SetCameraLock(bool shouldLock)
+    {
+        isLockedBySequence = shouldLock;
+        if (shouldLock) ResetArrowSprites();
+    }
+
+    public void SetPanTarget(Vector3 destination)
+    {
+        targetPosition = destination;
+    }
 
     private void UpdateUIElements()
     {
-        if (horizontalUIParent != null && horizontalUIParent.activeSelf != canMoveHorizontal)
+        bool showHorizontal = canMoveHorizontal && !isLockedBySequence;
+        bool showVertical = canMoveVertical && !isLockedBySequence;
+
+        if (horizontalUIParent != null && horizontalUIParent.activeSelf != showHorizontal)
         {
-            horizontalUIParent.SetActive(canMoveHorizontal);
+            horizontalUIParent.SetActive(showHorizontal);
         }
 
-        if (verticalUIParent != null && verticalUIParent.activeSelf != canMoveVertical)
+        if (verticalUIParent != null && verticalUIParent.activeSelf != showVertical)
         {
-            verticalUIParent.SetActive(canMoveVertical);
+            verticalUIParent.SetActive(showVertical);
         }
     }
 

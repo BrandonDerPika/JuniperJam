@@ -21,6 +21,7 @@ public class PlayerAnimator : MonoBehaviour
     private Rigidbody2D rb;
     private Coroutine hitCoroutine;
     private Sprite defaultSprite;
+    private bool permanentHitActive = false;
 
     private void Awake()
     {
@@ -47,6 +48,8 @@ public class PlayerAnimator : MonoBehaviour
         {
             HandleRotation();
         }
+        if (permanentHitActive) return;
+
         if (hitCoroutine == null)
         {
             if (playerBodyAnimator != null)
@@ -74,10 +77,9 @@ public class PlayerAnimator : MonoBehaviour
             visualsParent.rotation = Quaternion.Lerp(visualsParent.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
     }
-
     public void TriggerHitVisual()
     {
-        if (bodySpriteRenderer == null || hitSprite == null)
+        if (permanentHitActive || bodySpriteRenderer == null || hitSprite == null)
             return;
 
         if (hitCoroutine != null)
@@ -85,9 +87,27 @@ public class PlayerAnimator : MonoBehaviour
 
         hitCoroutine = StartCoroutine(HitSpriteRoutine());
     }
+    public void TriggerTargetHitVisual()
+    {
+        if (hitCoroutine != null)
+        {
+            StopCoroutine(hitCoroutine);
+            hitCoroutine = null;
+        }
+
+        permanentHitActive = true;
+
+        if (playerBodyAnimator != null)
+            playerBodyAnimator.enabled = false;
+
+        if (bodySpriteRenderer != null && hitSprite != null)
+            bodySpriteRenderer.sprite = hitSprite;
+    }
 
     public void ResetVisuals()
     {
+        permanentHitActive = false;
+
         if (hitCoroutine != null)
         {
             StopCoroutine(hitCoroutine);

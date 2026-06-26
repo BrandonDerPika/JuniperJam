@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameState : MonoBehaviour
 {
@@ -14,6 +15,11 @@ public class GameState : MonoBehaviour
 
     [Header("State")]
     [SerializeField] private Phase currentPhase = Phase.Planning;
+
+    [Header("UI State Visuals")]
+    [SerializeField] private Image targetUiImage;
+    [SerializeField] private Sprite runningSprite;
+    [SerializeField] private Sprite planningOrPausedSprite;
 
     public Phase CurrentPhase => currentPhase;
     public bool IsRunning => currentPhase == Phase.Running;
@@ -87,13 +93,23 @@ public class GameState : MonoBehaviour
             case Phase.Planning:
             case Phase.Pause:
                 GravitySystem.SetGravityEnabled(false);
+                UpdateUiVisuals(planningOrPausedSprite);
                 OnPlanningStarted?.Invoke();
                 break;
 
             case Phase.Running:
                 GravitySystem.SetGravityEnabled(true);
+                UpdateUiVisuals(runningSprite);
                 OnRunningStarted?.Invoke();
                 break;
+        }
+    }
+
+    private void UpdateUiVisuals(Sprite sourceSprite)
+    {
+        if (targetUiImage != null && sourceSprite != null)
+        {
+            targetUiImage.sprite = sourceSprite;
         }
     }
 }

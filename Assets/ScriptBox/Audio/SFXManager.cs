@@ -20,12 +20,32 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private AudioClip buttonClick1SFX;
     [SerializeField] private AudioClip buttonClick2SFX;
 
+    [Header("Explosion Sound Effects (Randomized)")]
+    [SerializeField] private AudioClip explosionSFX1;
+    [SerializeField] private AudioClip explosionSFX2;
+
     private void Awake()
     {
         if (Instance == null)
             Instance = this;
         else
             Destroy(gameObject);
+    }
+    public void PlayRandomExplosion()
+    {
+        if (sfxSource == null) return;
+
+        int choice = Random.Range(0, 2); // Generates 0 or 1
+        AudioClip clipToPlay = (choice == 0) ? explosionSFX1 : explosionSFX2;
+        if (clipToPlay == null)
+        {
+            clipToPlay = (explosionSFX1 != null) ? explosionSFX1 : explosionSFX2;
+        }
+
+        if (clipToPlay != null)
+        {
+            sfxSource.PlayOneShot(clipToPlay);
+        }
     }
 
 // once

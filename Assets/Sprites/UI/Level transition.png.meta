@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -108,7 +108,511 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Level transition_0
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 918
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 826e2e42ed62a0640b4d7b1a96e213ee
+      internalID: -1097956865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_1
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 918
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: af0d305880e97414da6261a8b75d8856
+      internalID: 537405864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_2
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 918
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b462b3ed1e810bb4ab0d0dd8af9ff126
+      internalID: -1310936186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_3
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 918
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c0cb2333b56c2344aa6b5752bb52807
+      internalID: 1620517249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_4
+      rect:
+        serializedVersion: 2
+        x: 1261
+        y: 918
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d0a27cfd9dda31c43b0b6bedaee4b79a
+      internalID: -175170355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_5
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 699
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b763a8199d28c964c991d793f53b2e82
+      internalID: -711770539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_6
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 699
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ff4a13f04426fb4b8b47f22fca27ca2
+      internalID: 1187501446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_7
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 699
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 07d99b46bcd9bcf42ab0646f6734f2fb
+      internalID: -1175246449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_8
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 699
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86e1e6fa6ca8d6f44a85a2cae81f1469
+      internalID: 1773423332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_9
+      rect:
+        serializedVersion: 2
+        x: 1261
+        y: 699
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3899ec3ca2a177e448ae9d0f1dbdeb41
+      internalID: 984253336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_10
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 480
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a709387443a4034582068c3884903c2
+      internalID: 443372568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_11
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 480
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 962d488107e3f784baf851e079561b39
+      internalID: 1478059349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_12
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 480
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a2884121b3602844d801312bafd34c15
+      internalID: 819464530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_13
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 480
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ea3739c6153105f42b28a375f1a0f306
+      internalID: -1899387574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_14
+      rect:
+        serializedVersion: 2
+        x: 1261
+        y: 480
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75da850f65517d0408161b3fb8fae268
+      internalID: -525605682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_15
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 261
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16c5e1b9671b56e4798d9fef036b0f19
+      internalID: -1322266216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_16
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 261
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 95a580e0ad630b442adb6cf73563f83c
+      internalID: -1788048530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_17
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 261
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f87f46e52b016f74a8330a26239a1e08
+      internalID: -1011919111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_18
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 261
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46b8c2b68256d4549ae15e1db3eeb1c7
+      internalID: 1917258714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_19
+      rect:
+        serializedVersion: 2
+        x: 1261
+        y: 261
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7bce8c6850ca40440aa5557dde1f3d19
+      internalID: -1915965901
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_20
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 42
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd19ba7f8da5d434989951d0eb986362
+      internalID: -358917520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_21
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 42
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b6116a4dbfef9f4c90195d40f64ebb7
+      internalID: 506018843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_22
+      rect:
+        serializedVersion: 2
+        x: 661
+        y: 42
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2e3675c021823b04ca3bfd77f68c8d7f
+      internalID: 91754235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Level transition_23
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 42
+        width: 180
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b844723567028514eb913189a1000002
+      internalID: 853096517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -119,7 +623,31 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Level transition_0: -1097956865
+      Level transition_1: 537405864
+      Level transition_10: 443372568
+      Level transition_11: 1478059349
+      Level transition_12: 819464530
+      Level transition_13: -1899387574
+      Level transition_14: -525605682
+      Level transition_15: -1322266216
+      Level transition_16: -1788048530
+      Level transition_17: -1011919111
+      Level transition_18: 1917258714
+      Level transition_19: -1915965901
+      Level transition_2: -1310936186
+      Level transition_20: -358917520
+      Level transition_21: 506018843
+      Level transition_22: 91754235
+      Level transition_23: 853096517
+      Level transition_3: 1620517249
+      Level transition_4: -175170355
+      Level transition_5: -711770539
+      Level transition_6: 1187501446
+      Level transition_7: -1175246449
+      Level transition_8: 1773423332
+      Level transition_9: 984253336
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

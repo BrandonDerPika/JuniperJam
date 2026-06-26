@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +17,12 @@ public class LevelManager : MonoBehaviour
         
         [Header("Level Scene Setup Object")]
         public GameObject levelLayoutObject; 
+
+        [Header("Sequence Points")]
+        public Transform levelEndObject;
+
+        [Header("VFX Configuration")]
+        public Transform waveOriginObject; 
     }
 
     [Header("Level Configuration")]
@@ -25,6 +32,14 @@ public class LevelManager : MonoBehaviour
     [Header("Scene References")]
     [SerializeField] private Planner plannerScript;
     [SerializeField] private GameObject victoryScreenUI;
+    [SerializeField] private CameraPan cameraPanScript;
+
+    [Header("VFX Settings")]
+    [SerializeField] private Animator transitionAnimator;
+    [SerializeField] private string transitionAnimationName = "Transition_Play";
+
+    private bool isTransitioning = false;
+    private BorderWave localWaveSettings;
 
     private void Awake()
     {
@@ -34,36 +49,29 @@ public class LevelManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        localWaveSettings = GetComponent<BorderWave>();
     }
 
     private void Start()
     {
-        if (plannerScript == null)
-        {
-            plannerScript = FindFirstObjectByType<Planner>();
-        }
+        if (plannerScript == null) plannerScript = FindFirstObjectByType<Planner>();
+        if (cameraPanScript == null) cameraPanScript = FindFirstObjectByType<CameraPan>();
 
-        // Initialize and make sure everything except the first active level is disabled
         DeactivateAllLayouts();
         LoadLevel(currentLevelIndex);
     }
 
     public void LoadLevel(int index)
     {
-        if (levels == null || levels.Count == 0)
-        {
-            Debug.LogWarning("No levels configured in the LevelManager!");
-            return;
-        }
+        if (levels == null || levels.Count == 0) return;
 
-        // Check
         if (index >= levels.Count)
         {
             CompleteAllLevels();
             return;
         }
 
-        // Deactivate the old level layout before updating the index
         if (currentLevelIndex < levels.Count && levels[currentLevelIndex].levelLayoutObject != null)
         {
             levels[currentLevelIndex].levelLayoutObject.SetActive(false);
@@ -71,9 +79,7 @@ public class LevelManager : MonoBehaviour
 
         currentLevelIndex = index;
         LevelData currentLevel = levels[currentLevelIndex];
-        Debug.Log($"Loading Level {currentLevelIndex + 1}: {currentLevel.levelName}");
 
-        // Force set the exact resource limits on Planner script
         if (plannerScript != null)
         {
             plannerScript.SetCircleLimit(currentLevel.circlePlanetLimit);
@@ -81,30 +87,107 @@ public class LevelManager : MonoBehaviour
             plannerScript.SetSquareLimit(currentLevel.squarePlanetLimit);
         }
 
-        // Clear out any physical planets already placed in the scene
         ClearCurrentPlanets();
 
-        // Activate the game object layout for the level
         if (currentLevel.levelLayoutObject != null)
         {
             currentLevel.levelLayoutObject.SetActive(true);
         }
 
-        // Force the game state back into planning mode for new setup
         if (GameState.Instance != null)
         {
             GameState.Instance.SetPhase(GameState.Phase.Planning);
         }
         
         if (victoryScreenUI != null) victoryScreenUI.SetActive(false);
+        
+        if (transitionAnimator != null)
+        {
+            transitionAnimator.gameObject.SetActive(false);
+        }
+
+        if (cameraPanScript != null) cameraPanScript.SetCameraLock(false);
+        isTransitioning = false;
     }
 
     public void CompleteCurrentLevel()
     {
-        Debug.Log($"Level {currentLevelIndex + 1} Cleared!");
-        
+        if (isTransitioning) return;
+        StartCoroutine(LevelSequence());
+    }
+
+    private IEnumerator LevelSequence()
+    {
+        isTransitioning = true;
+        LevelData currentLevel = levels[currentLevelIndex];
+
+        Transform originTarget = currentLevel.waveOriginObject != null ? currentLevel.waveOriginObject : currentLevel.levelEndObject;
+
+        if (originTarget == null)
+        {
+            Debug.LogError("[LevelManager] Missing both waveOriginObject and levelEndObject! Nowhere to anchor the circle effect.");
+            isTransitioning = false;
+            yield break;
+        }
+
+        Vector3 targetPosition = originTarget.position;
+
+        GameObject waveObject = new GameObject("DynamicBorderWave");
+        waveObject.transform.position = targetPosition;
+        BorderWave activeWaveScript = waveObject.AddComponent<BorderWave>();
+
+        if (localWaveSettings != null)
+        {
+            activeWaveScript.InitializeCustom(
+                localWaveSettings.expansionSpeed,
+                localWaveSettings.maxRadius,
+                localWaveSettings.thickness,
+                localWaveSettings.segments,
+                localWaveSettings.waveColor,
+                localWaveSettings.uniqueHitTargets,
+                localWaveSettings.defaultAnimatorTrigger,
+                localWaveSettings.fallbackDarkenColor
+            );
+        }
+        else
+        {
+            activeWaveScript.InitializeCustom(8f, 12f, 0.25f, 60, Color.white, new List<BorderWave.UniqueHitTarget>(), "Explode", Color.gray);
+        }
+
+        if (cameraPanScript != null)
+        {
+            cameraPanScript.SetCameraLock(true);
+        }
+
+        if (cameraPanScript != null)
+        {
+            cameraPanScript.SetPanTarget(targetPosition);
+            
+            while (Vector2.Distance(cameraPanScript.transform.position, targetPosition) > 0.05f)
+            {
+                yield return null; 
+            }
+        }
+        yield return new WaitForSeconds(1f);
+
+        if (transitionAnimator != null)
+        {
+            transitionAnimator.gameObject.SetActive(true);
+            transitionAnimator.Play(transitionAnimationName);
+            
+            yield return null;
+
+            AnimatorStateInfo stateInfo = transitionAnimator.GetCurrentAnimatorStateInfo(0);
+            float halfDuration = stateInfo.length > 0 ? stateInfo.length / 2f : 0.5f;
+
+            yield return new WaitForSeconds(halfDuration);
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
         int nextLevel = currentLevelIndex + 1;
-        
         if (nextLevel < levels.Count)
         {
             LoadLevel(nextLevel);
@@ -126,36 +209,25 @@ public class LevelManager : MonoBehaviour
 
     private void DeactivateAllLayouts()
     {
-        // Safe check loop ensuring everything is turned off cleanly at boot
         foreach (LevelData level in levels)
         {
-            if (level.levelLayoutObject != null)
-            {
-                level.levelLayoutObject.SetActive(false);
-            }
+            if (level.levelLayoutObject != null) level.levelLayoutObject.SetActive(false);
         }
     }
 
     private void CompleteAllLevels()
     {
-        Debug.Log("Congratulations!");
-        
-        // Turn off the final level's objects upon completion
         if (currentLevelIndex < levels.Count && levels[currentLevelIndex].levelLayoutObject != null)
         {
             levels[currentLevelIndex].levelLayoutObject.SetActive(false);
         }
-
-        if (victoryScreenUI != null)
-        {
-            victoryScreenUI.SetActive(true);
-        }
         
-        if (GameState.Instance != null)
+        if (transitionAnimator != null)
         {
-            GameState.Instance.SetPhase(GameState.Phase.Planning);
+            transitionAnimator.gameObject.SetActive(false);
         }
 
-        // delete all planets
+        if (victoryScreenUI != null) victoryScreenUI.SetActive(true);
+        if (GameState.Instance != null) GameState.Instance.SetPhase(GameState.Phase.Planning);
     }
 }
