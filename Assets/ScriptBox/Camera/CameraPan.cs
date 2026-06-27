@@ -7,6 +7,13 @@ public class CameraPan : MonoBehaviour
     public float moveSpeed = 10f;
     public float smoothTime = 0.15f;
 
+    [Header("Bounds Constraints (Player Controls Only)")]
+    [SerializeField] private bool useBounds = true;
+    [SerializeField] private float minX = -10f;
+    [SerializeField] private float maxX = 10f;
+    [SerializeField] private float minY = -5f;
+    [SerializeField] private float maxY = 5f;
+
     [Header("Controls")]
     public bool canMoveHorizontal = true;
     public bool canMoveVertical = true;
@@ -105,6 +112,12 @@ public class CameraPan : MonoBehaviour
         
         targetPosition.x += input.x * moveSpeed * Time.deltaTime;
         targetPosition.y += input.y * moveSpeed * Time.deltaTime;
+
+        if (useBounds)
+        {
+            targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
+            targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
+        }
     }
 
     private void LateUpdate()

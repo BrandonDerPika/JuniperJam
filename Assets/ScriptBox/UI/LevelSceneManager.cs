@@ -20,6 +20,14 @@ public class LevelSceneManager : MonoBehaviour
     [Header("Generic Managed Scene Elements")]
     [SerializeField] private List<ManagedElement> managedElements = new List<ManagedElement>();
 
+    [Header("Level 2 UI Alternator Settings")]
+    [SerializeField] private Image targetUiImage;
+    [SerializeField] private Sprite frameA;
+    [SerializeField] private Sprite frameB;
+    [SerializeField] private float swapDelay = 1f;
+
+    private Coroutine alternatorCoroutine;
+
     private void Start()
     {
         if (LevelManager.Instance != null)
@@ -56,6 +64,34 @@ public class LevelSceneManager : MonoBehaviour
             {
                 element.targetObject.SetActive(currentLevelIndex >= element.enableAtLevelIndex);
             }
+        }
+
+        if (currentLevelIndex == 2)
+        {
+            if (alternatorCoroutine == null && targetUiImage != null && frameA != null && frameB != null)
+            {
+                alternatorCoroutine = StartCoroutine(UiAlternatorRoutine());
+            }
+        }
+        else
+        {
+            if (alternatorCoroutine != null)
+            {
+                StopCoroutine(alternatorCoroutine);
+                alternatorCoroutine = null;
+            }
+        }
+    }
+
+    private IEnumerator UiAlternatorRoutine()
+    {
+        bool useFrameA = true;
+
+        while (true)
+        {
+            targetUiImage.sprite = useFrameA ? frameA : frameB;
+            useFrameA = !useFrameA;
+            yield return new WaitForSeconds(swapDelay);
         }
     }
 }

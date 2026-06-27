@@ -7160,6 +7160,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 1
   smoothTime: 0.15
+  useBounds: 1
+  minX: -1
+  maxX: 1
+  minY: -1
+  maxY: 1
   canMoveHorizontal: 1
   canMoveVertical: 0
   horizontalUIParent: {fileID: 1887514750}
@@ -9044,7 +9049,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &703431246
 Transform:
   m_ObjectHideFlags: 0
@@ -9652,6 +9657,10 @@ MonoBehaviour:
   - targetObject: {fileID: 1531973180}
     enableAtLevelIndex: 2
     exactLevelOnly: 0
+  targetUiImage: {fileID: 1962605867}
+  frameA: {fileID: 370329098, guid: 49df497d95dc26d4287aa2195f366148, type: 3}
+  frameB: {fileID: -1215360115, guid: 84c9f3085cdc3874386db1639dce8293, type: 3}
+  swapDelay: 0.2
 --- !u!1 &737441023
 GameObject:
   m_ObjectHideFlags: 0
