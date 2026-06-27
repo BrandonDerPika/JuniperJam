@@ -19,11 +19,8 @@ public class LevelManager : MonoBehaviour
         public GameObject levelLayoutObject; 
 
         [Header("Preview Sequence Configuration")]
-        [Tooltip("The camera will snap here instantly on level load.")]
         public Transform previewStartPoint;
-        [Tooltip("The camera will pan here from the start point and rest.")]
         public Transform previewEndPoint;
-        [Tooltip("How long the camera stays at Point X before moving to Point Y.")]
         public float startPointWaitTime;
 
         [Header("Sequence Points")]
@@ -50,12 +47,13 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private string transitionAnimationName = "Transition_Play";
 
     [Header("Camera Control Settings")]
-    [Tooltip("How fast the camera moves during level previews and endings.")]
     [SerializeField] private float cameraPanSpeed = 3f;
 
     private bool isTransitioning = false;
     private BorderWave localWaveSettings;
     private Coroutine currentPreviewCoroutine;
+
+    public System.Action<int> OnLevelLoaded;
 
     public int CurrentLevelIndex => currentLevelIndex;
 
@@ -120,11 +118,6 @@ public class LevelManager : MonoBehaviour
         }
         
         if (victoryScreenUI != null) victoryScreenUI.SetActive(false);
-        
-        if (transitionAnimator != null)
-        {
-            transitionAnimator.gameObject.SetActive(false);
-        }
 
         if (cameraPanScript != null)
         {
@@ -136,6 +129,11 @@ public class LevelManager : MonoBehaviour
             DialogueManager.Instance.StartDialogue(currentLevel.levelDialogue);
         }
         
+        if (OnLevelLoaded != null)
+        {
+            OnLevelLoaded.Invoke(currentLevelIndex);
+        }
+
         isTransitioning = false;
     }
 
@@ -171,65 +169,77 @@ public class LevelManager : MonoBehaviour
     public void CompleteCurrentLevel()
     {
         if (isTransitioning) return;
-        StartCoroutine(LevelSequence());
+        StartCoroutine(LevelSequence(false));
     }
 
-    private IEnumerator LevelSequence()
+    public void SkipCurrentLevel()
+    {
+        if (isTransitioning) return;
+        StartCoroutine(LevelSequence(true));
+    }
+
+    private IEnumerator LevelSequence(bool isSkipping)
     {
         isTransitioning = true;
         LevelData currentLevel = levels[currentLevelIndex];
 
-        Transform waveOriginTarget = currentLevel.waveOriginObject != null ? currentLevel.waveOriginObject : currentLevel.levelEndObject;
-        Transform cameraFocusTarget = currentLevel.levelEndObject != null ? currentLevel.levelEndObject : currentLevel.waveOriginObject;
-
-        if (waveOriginTarget == null && cameraFocusTarget == null)
+        if (!isSkipping)
         {
-            Debug.LogError("[LevelManager] Missing both waveOriginObject and levelEndObject! Nowhere to anchor sequence.");
-            isTransitioning = false;
-            yield break;
-        }
+            Transform waveOriginTarget = currentLevel.waveOriginObject != null ? currentLevel.waveOriginObject : currentLevel.levelEndObject;
+            Transform cameraFocusTarget = currentLevel.levelEndObject != null ? currentLevel.levelEndObject : currentLevel.waveOriginObject;
 
-        Vector3 wavePosition = waveOriginTarget != null ? waveOriginTarget.position : cameraFocusTarget.position;
-        Vector3 camTargetPosition = cameraFocusTarget != null ? cameraFocusTarget.position : waveOriginTarget.position;
-        camTargetPosition.z = -10f; 
-
-        GameObject waveObject = new GameObject("DynamicBorderWave");
-        waveObject.transform.position = wavePosition;
-        BorderWave activeWaveScript = waveObject.AddComponent<BorderWave>();
-
-        if (localWaveSettings != null)
-        {
-            activeWaveScript.InitializeCustom(
-                localWaveSettings.expansionSpeed,
-                localWaveSettings.maxRadius,
-                localWaveSettings.thickness,
-                localWaveSettings.segments,
-                localWaveSettings.waveColor,
-                localWaveSettings.uniqueHitTargets,
-                localWaveSettings.defaultAnimatorTrigger,
-                localWaveSettings.fallbackDarkenColor,
-                localWaveSettings.ignoreTag
-            );
-        }
-        else
-        {
-            activeWaveScript.InitializeCustom(8f, 12f, 0.25f, 60, Color.white, new List<BorderWave.UniqueHitTarget>(), "Explode", Color.gray, "IgnoreWave");
-        }
-
-        if (cameraPanScript != null)
-        {
-            cameraPanScript.SetCameraLock(true);
-            
-            while (Vector2.Distance(cameraPanScript.transform.position, camTargetPosition) > 0.01f)
+            if (waveOriginTarget == null && cameraFocusTarget == null)
             {
-                Vector3 nextPosition = Vector3.MoveTowards(cameraPanScript.transform.position, camTargetPosition, cameraPanSpeed * Time.deltaTime);
-                nextPosition.z = -10f;
-                
-                cameraPanScript.SetPanTarget(nextPosition);
-                yield return null; 
+                Debug.LogError("[LevelManager] Missing both waveOriginObject and levelEndObject! Nowhere to anchor sequence.");
+                isTransitioning = false;
+                yield break;
             }
+
+            Vector3 wavePosition = waveOriginTarget != null ? waveOriginTarget.position : cameraFocusTarget.position;
+            Vector3 camTargetPosition = cameraFocusTarget != null ? cameraFocusTarget.position : waveOriginTarget.position;
+            camTargetPosition.z = -10f; 
+
+            GameObject waveObject = new GameObject("DynamicBorderWave");
+            waveObject.transform.position = wavePosition;
+            BorderWave activeWaveScript = waveObject.AddComponent<BorderWave>();
+
+            if (localWaveSettings != null)
+            {
+                activeWaveScript.InitializeCustom(
+                    localWaveSettings.expansionSpeed,
+                    localWaveSettings.maxRadius,
+                    localWaveSettings.thickness,
+                    localWaveSettings.segments,
+                    localWaveSettings.waveColor,
+                    localWaveSettings.uniqueHitTargets,
+                    localWaveSettings.defaultAnimatorTrigger,
+                    localWaveSettings.fallbackDarkenColor,
+                    localWaveSettings.ignoreTag
+                );
+            }
+            else
+            {
+                activeWaveScript.InitializeCustom(8f, 12f, 0.25f, 60, Color.white, new List<BorderWave.UniqueHitTarget>(), "Explode", Color.gray, "IgnoreWave");
+            }
+
+            if (cameraPanScript != null)
+            {
+                cameraPanScript.SetCameraLock(true);
+                
+                while (Vector2.Distance(cameraPanScript.transform.position, camTargetPosition) > 0.01f)
+                {
+                    Vector3 nextPosition = Vector3.MoveTowards(cameraPanScript.transform.position, camTargetPosition, cameraPanSpeed * Time.deltaTime);
+                    nextPosition.z = -10f;
+                    
+                    cameraPanScript.SetPanTarget(nextPosition);
+                    yield return null; 
+                }
+            }
+            yield return new WaitForSeconds(1.2f); 
         }
-        yield return new WaitForSeconds(1.2f); 
+
+        float totalDuration = 0.5f;
+        float halfDuration = 0.25f;
 
         if (transitionAnimator != null)
         {
@@ -239,16 +249,12 @@ public class LevelManager : MonoBehaviour
             yield return null;
 
             AnimatorStateInfo stateInfo = transitionAnimator.GetCurrentAnimatorStateInfo(0);
-            float halfDuration = stateInfo.length > 0 ? stateInfo.length / 2f : 0.5f;
+            totalDuration = stateInfo.length > 0 ? stateInfo.length : 1f;
+            halfDuration = totalDuration / 2f;
 
             yield return new WaitForSeconds(halfDuration);
         }
         else
-        {
-            yield return new WaitForSeconds(0.25f);
-        }
-
-        if (transitionAnimator == null)
         {
             yield return new WaitForSeconds(0.25f);
         }
@@ -261,6 +267,12 @@ public class LevelManager : MonoBehaviour
         else
         {
             CompleteAllLevels();
+        }
+
+        if (transitionAnimator != null)
+        {
+            yield return new WaitForSeconds(totalDuration - halfDuration);
+            transitionAnimator.gameObject.SetActive(false);
         }
     }
 
