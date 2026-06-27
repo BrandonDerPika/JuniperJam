@@ -241,6 +241,29 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+        public void RestartLevel()
+    {
+        StopAllCoroutines();
+
+        ClearCurrentPlanets();
+
+        if (transitionAnimator != null)
+        {
+            transitionAnimator.gameObject.SetActive(false);
+        }
+
+        if (cameraPanScript != null)
+        {
+            cameraPanScript.transform.position = new Vector3(0f, 0f, -10f);
+            cameraPanScript.SetPanTarget(new Vector3(0f, 0f, -10f));
+            cameraPanScript.SetCameraLock(currentLevelIndex == 0);
+        }
+
+        isTransitioning = false;
+
+        LoadLevel(currentLevelIndex);
+    }
+
     private void DeactivateAllLayouts()
     {
         foreach (LevelData level in levels)
