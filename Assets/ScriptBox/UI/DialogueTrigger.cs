@@ -20,7 +20,6 @@ public class DialogueTrigger : MonoBehaviour
     [SerializeField] private float planetFloatSpeed = 1.5f; 
     [SerializeField] private float delayBetweenPlanets = 0.5f; 
     
-    [Tooltip("The script will randomly pick from this list continuously until stopped.")]
     [SerializeField] private List<SpawnablePlanet> planetsPool = new List<SpawnablePlanet>();
 
     [Header("Element 5 (Box 6) - Target New Graphic Variant")]
@@ -32,23 +31,23 @@ public class DialogueTrigger : MonoBehaviour
     [Header("Element 7 (Box 8) - Celestial Gravity Sink")]
     [SerializeField] private GameObject blackHoleObject;
 
+    [Header("Element 9 (Box 10) - Tutorial Mouse Setup")]
+    [SerializeField] private TutorialMouse TutorialMouseScript;
+
     private List<GameObject> instantiatedPlanets = new List<GameObject>();
     private CameraPan cameraPanScript;
     private bool isCameraAutoScrolling = false;
     private bool isSubscribed = false;
     private Coroutine planetSpawnRoutine;
     private bool keepSpawningRandomly = false;
-
-    // Independent position tracker to bypass any frame rendering/Damp lag
     private float customScrollX = 0f;
 
     private void Awake()
     {
         cameraPanScript = FindFirstObjectByType<CameraPan>();
         
-        // Catch the script reference instantly if it exists in the scene hierarchy layout
         if (DialogueManager.Instance != null)
-        {
+         {
             DialogueManager.Instance.OnLineChanged += HandleLineChanged;
             isSubscribed = true;
         }
@@ -56,7 +55,6 @@ public class DialogueTrigger : MonoBehaviour
 
     private void Start()
     {
-        // Safety fallback sequence if DialogueManager loaded slightly out of order
         if (!isSubscribed)
         {
             StartCoroutine(DelayedSubscribeRoutine());
@@ -74,8 +72,6 @@ public class DialogueTrigger : MonoBehaviour
         {
             DialogueManager.Instance.OnLineChanged += HandleLineChanged;
             isSubscribed = true;
-            
-            // If we subscribed late, manually evaluate the active dialogue sequence state
             HandleLineChanged(DialogueManager.Instance.CurrentLineIndex);
         }
     }
@@ -90,7 +86,6 @@ public class DialogueTrigger : MonoBehaviour
 
     private void Update()
     {
-        // 1. Force state positions down to the CameraPan layout script safely
         if (isCameraAutoScrolling && cameraPanScript != null)
         {
             customScrollX += cameraScrollSpeed * Time.deltaTime;
@@ -99,7 +94,6 @@ public class DialogueTrigger : MonoBehaviour
 
         float camX = (cameraPanScript != null) ? cameraPanScript.transform.position.x : customScrollX;
 
-        // 2. Handle planet floating movement & off-screen cleanup
         for (int i = instantiatedPlanets.Count - 1; i >= 0; i--)
         {
             GameObject planet = instantiatedPlanets[i];
@@ -173,6 +167,10 @@ public class DialogueTrigger : MonoBehaviour
                 {
                     cameraPanScript.SetCameraLock(false);
                 }
+                if (TutorialMouseScript != null)
+                {
+                    TutorialMouseScript.ActivateAnimation();
+                }
                 break;
 
             case -1: 
@@ -192,7 +190,6 @@ public class DialogueTrigger : MonoBehaviour
         
         if (planetsPool == null || planetsPool.Count == 0)
         {
-            Debug.LogWarning("[DialogueTrigger] No planets assigned in planetsPool layout array!");
             return;
         }
 

@@ -18,6 +18,14 @@ public class LevelManager : MonoBehaviour
         [Header("Level Scene Setup Object")]
         public GameObject levelLayoutObject; 
 
+        [Header("Preview Sequence Configuration")]
+        [Tooltip("The camera will snap here instantly on level load.")]
+        public Transform previewStartPoint;
+        [Tooltip("The camera will pan here from the start point and rest.")]
+        public Transform previewEndPoint;
+        [Tooltip("How long the camera stays at Point X before moving to Point Y.")]
+        public float startPointWaitTime;
+
         [Header("Sequence Points")]
         public Transform levelEndObject;
 
@@ -42,11 +50,12 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private string transitionAnimationName = "Transition_Play";
 
     [Header("Camera Control Settings")]
-    [Tooltip("How fast the camera moves to the Level End Object. Lower values mean slower, steadier pans.")]
+    [Tooltip("How fast the camera moves during level previews and endings.")]
     [SerializeField] private float cameraPanSpeed = 3f;
 
     private bool isTransitioning = false;
     private BorderWave localWaveSettings;
+    private Coroutine currentPreviewCoroutine;
 
     public int CurrentLevelIndex => currentLevelIndex;
 
@@ -80,6 +89,8 @@ public class LevelManager : MonoBehaviour
             CompleteAllLevels();
             return;
         }
+
+        if (currentPreviewCoroutine != null) StopCoroutine(currentPreviewCoroutine);
 
         if (currentLevelIndex < levels.Count && levels[currentLevelIndex].levelLayoutObject != null)
         {
@@ -117,7 +128,7 @@ public class LevelManager : MonoBehaviour
 
         if (cameraPanScript != null)
         {
-            cameraPanScript.SetCameraLock(currentLevelIndex == 0);
+            currentPreviewCoroutine = StartCoroutine(LevelPreviewSequence(currentLevel));
         }
 
         if (DialogueManager.Instance != null)
@@ -126,6 +137,35 @@ public class LevelManager : MonoBehaviour
         }
         
         isTransitioning = false;
+    }
+
+    private IEnumerator LevelPreviewSequence(LevelData level)
+    {
+        cameraPanScript.SetCameraLock(true);
+
+        Vector3 startPos = level.previewStartPoint != null ? level.previewStartPoint.position : new Vector3(0, 0, -10f);
+        Vector3 endPos = level.previewEndPoint != null ? level.previewEndPoint.position : new Vector3(0, 0, -10f);
+        startPos.z = -10f;
+        endPos.z = -10f;
+
+        cameraPanScript.transform.position = startPos;
+        cameraPanScript.SetPanTarget(startPos);
+
+        float waitTime = level.startPointWaitTime > 0 ? level.startPointWaitTime : 3f;
+        yield return new WaitForSeconds(waitTime);
+
+        while (Vector2.Distance(cameraPanScript.transform.position, endPos) > 0.05f)
+        {
+            Vector3 nextPosition = Vector3.MoveTowards(cameraPanScript.transform.position, endPos, cameraPanSpeed * Time.deltaTime);
+            nextPosition.z = -10f;
+            
+            cameraPanScript.SetPanTarget(nextPosition);
+            yield return null; 
+        }
+
+        cameraPanScript.SetPanTarget(endPos);
+
+        cameraPanScript.SetCameraLock(currentLevelIndex == 0); 
     }
 
     public void CompleteCurrentLevel()
@@ -186,8 +226,6 @@ public class LevelManager : MonoBehaviour
                 nextPosition.z = -10f;
                 
                 cameraPanScript.SetPanTarget(nextPosition);
-                cameraPanScript.transform.position = nextPosition; 
-                
                 yield return null; 
             }
         }
@@ -208,11 +246,6 @@ public class LevelManager : MonoBehaviour
         else
         {
             yield return new WaitForSeconds(0.25f);
-        }
-
-        if (cameraPanScript != null)
-        {
-            cameraPanScript.SetPanTarget(new Vector3(0f, 0f, -10f));
         }
 
         if (transitionAnimator == null)
@@ -241,7 +274,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-        public void RestartLevel()
+    public void RestartLevel()
     {
         StopAllCoroutines();
 
@@ -252,15 +285,7 @@ public class LevelManager : MonoBehaviour
             transitionAnimator.gameObject.SetActive(false);
         }
 
-        if (cameraPanScript != null)
-        {
-            cameraPanScript.transform.position = new Vector3(0f, 0f, -10f);
-            cameraPanScript.SetPanTarget(new Vector3(0f, 0f, -10f));
-            cameraPanScript.SetCameraLock(currentLevelIndex == 0);
-        }
-
         isTransitioning = false;
-
         LoadLevel(currentLevelIndex);
     }
 
