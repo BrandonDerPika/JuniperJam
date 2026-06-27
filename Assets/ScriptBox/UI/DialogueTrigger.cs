@@ -30,6 +30,8 @@ public class DialogueTrigger : MonoBehaviour
 
     [Header("Element 7 (Box 8) - Celestial Gravity Sink")]
     [SerializeField] private GameObject blackHoleObject;
+    [SerializeField] private Transform cameraFocusTargetCase7;
+    [SerializeField] private float cameraPanSpeedCase7 = 5f;
 
     [Header("Element 9 (Box 10) - Tutorial Mouse Setup")]
     [SerializeField] private TutorialMouse TutorialMouseScript;
@@ -39,6 +41,7 @@ public class DialogueTrigger : MonoBehaviour
     private bool isCameraAutoScrolling = false;
     private bool isSubscribed = false;
     private Coroutine planetSpawnRoutine;
+    private Coroutine cameraPanRoutineCase7;
     private bool keepSpawningRandomly = false;
     private float customScrollX = 0f;
 
@@ -160,6 +163,12 @@ public class DialogueTrigger : MonoBehaviour
 
             case 7: 
                 if (blackHoleObject != null) blackHoleObject.SetActive(true);
+                
+                if (cameraPanScript != null && cameraFocusTargetCase7 != null)
+                {
+                    if (cameraPanRoutineCase7 != null) StopCoroutine(cameraPanRoutineCase7);
+                    cameraPanRoutineCase7 = StartCoroutine(PanCameraToTargetCase7());
+                }
                 break;
 
             case 12: 
@@ -182,6 +191,24 @@ public class DialogueTrigger : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    private IEnumerator PanCameraToTargetCase7()
+    {
+        cameraPanScript.SetCameraLock(true);
+        Vector3 targetPos = cameraFocusTargetCase7.position;
+        targetPos.z = -10f;
+
+        while (Vector2.Distance(cameraPanScript.transform.position, targetPos) > 0.05f)
+        {
+            Vector3 nextPosition = Vector3.MoveTowards(cameraPanScript.transform.position, targetPos, cameraPanSpeedCase7 * Time.deltaTime);
+            nextPosition.z = -10f;
+            
+            cameraPanScript.SetPanTarget(nextPosition);
+            yield return null;
+        }
+
+        cameraPanScript.SetPanTarget(targetPos);
     }
 
     private void StartInfiniteRandomSpawning()
