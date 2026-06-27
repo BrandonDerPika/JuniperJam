@@ -56,8 +56,6 @@ public class CameraPan : MonoBehaviour
     {
         UpdateUIElements();
         
-        // Block processing player inputs when sequence locks are active,
-        // but do not block positions processed directly through SetPanTarget
         if (isLockedBySequence) return;
         if (!canMoveHorizontal && !canMoveVertical) return;
 
@@ -111,7 +109,6 @@ public class CameraPan : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Keep smooth positioning updates independent of active logic lock state values
         transform.position = Vector3.SmoothDamp(
             transform.position,
             targetPosition,
