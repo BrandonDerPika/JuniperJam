@@ -136,8 +136,7 @@ public class Planner : MonoBehaviour
         if (hit.collider != null && hit.collider.CompareTag("Planet"))
         {
             GravitySource source = hit.collider.GetComponent<GravitySource>();
-
-            if (source != null)
+            if (source != null && !source.IsStatic)
             {
                 currentDragPreview = hit.collider.gameObject;
                 selectedType = source.Type;
@@ -273,8 +272,7 @@ public class Planner : MonoBehaviour
         if (hit.collider != null && hit.collider.CompareTag("Planet"))
         {
             GravitySource source = hit.collider.GetComponent<GravitySource>();
-
-            if (source != null)
+            if (source != null && !source.IsStatic)
             {
                 ModifyLimit(source.Type, 1);
                 Destroy(hit.collider.gameObject);

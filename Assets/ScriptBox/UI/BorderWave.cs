@@ -44,7 +44,7 @@ public class BorderWave : MonoBehaviour
     }
 
     public void InitializeCustom(float speed, float radius, float thick, int segs, Color col, 
-                                 List<UniqueHitTarget> customTargets, string defaultTrigger, Color darkenColor, string customIgnoreTag)
+    List<UniqueHitTarget> customTargets, string defaultTrigger, Color darkenColor, string customIgnoreTag)
     {
         expansionSpeed = speed;
         maxRadius = radius;

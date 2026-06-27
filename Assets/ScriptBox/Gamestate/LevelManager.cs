@@ -41,8 +41,14 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Animator transitionAnimator;
     [SerializeField] private string transitionAnimationName = "Transition_Play";
 
+    [Header("Camera Control Settings")]
+    [Tooltip("How fast the camera moves to the Level End Object. Lower values mean slower, steadier pans.")]
+    [SerializeField] private float cameraPanSpeed = 3f;
+
     private bool isTransitioning = false;
     private BorderWave localWaveSettings;
+
+    public int CurrentLevelIndex => currentLevelIndex;
 
     private void Awake()
     {
@@ -111,7 +117,7 @@ public class LevelManager : MonoBehaviour
 
         if (cameraPanScript != null)
         {
-            cameraPanScript.SetCameraLock(false);
+            cameraPanScript.SetCameraLock(currentLevelIndex == 0);
         }
 
         if (DialogueManager.Instance != null)
@@ -133,19 +139,22 @@ public class LevelManager : MonoBehaviour
         isTransitioning = true;
         LevelData currentLevel = levels[currentLevelIndex];
 
-        Transform originTarget = currentLevel.waveOriginObject != null ? currentLevel.waveOriginObject : currentLevel.levelEndObject;
+        Transform waveOriginTarget = currentLevel.waveOriginObject != null ? currentLevel.waveOriginObject : currentLevel.levelEndObject;
+        Transform cameraFocusTarget = currentLevel.levelEndObject != null ? currentLevel.levelEndObject : currentLevel.waveOriginObject;
 
-        if (originTarget == null)
+        if (waveOriginTarget == null && cameraFocusTarget == null)
         {
-            Debug.LogError("[LevelManager] Missing both waveOriginObject and levelEndObject! Nowhere to anchor the circle effect.");
+            Debug.LogError("[LevelManager] Missing both waveOriginObject and levelEndObject! Nowhere to anchor sequence.");
             isTransitioning = false;
             yield break;
         }
 
-        Vector3 targetPosition = originTarget.position;
+        Vector3 wavePosition = waveOriginTarget != null ? waveOriginTarget.position : cameraFocusTarget.position;
+        Vector3 camTargetPosition = cameraFocusTarget != null ? cameraFocusTarget.position : waveOriginTarget.position;
+        camTargetPosition.z = -10f; 
 
         GameObject waveObject = new GameObject("DynamicBorderWave");
-        waveObject.transform.position = targetPosition;
+        waveObject.transform.position = wavePosition;
         BorderWave activeWaveScript = waveObject.AddComponent<BorderWave>();
 
         if (localWaveSettings != null)
@@ -170,15 +179,19 @@ public class LevelManager : MonoBehaviour
         if (cameraPanScript != null)
         {
             cameraPanScript.SetCameraLock(true);
-            Vector3 camTargetPosition = new Vector3(targetPosition.x, targetPosition.y, -10f);
-            cameraPanScript.SetPanTarget(camTargetPosition);
             
-            while (Vector2.Distance(cameraPanScript.transform.position, camTargetPosition) > 0.05f)
+            while (Vector2.Distance(cameraPanScript.transform.position, camTargetPosition) > 0.01f)
             {
+                Vector3 nextPosition = Vector3.MoveTowards(cameraPanScript.transform.position, camTargetPosition, cameraPanSpeed * Time.deltaTime);
+                nextPosition.z = -10f;
+                
+                cameraPanScript.SetPanTarget(nextPosition);
+                cameraPanScript.transform.position = nextPosition; 
+                
                 yield return null; 
             }
         }
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.2f); 
 
         if (transitionAnimator != null)
         {
@@ -223,7 +236,8 @@ public class LevelManager : MonoBehaviour
         List<GravitySource> sourcesToDestroy = new List<GravitySource>(GravitySource.ActiveSources);
         foreach (GravitySource source in sourcesToDestroy)
         {
-            if (source != null) Destroy(source.gameObject);
+            if (source != null && !source.IsStatic) 
+                Destroy(source.gameObject);
         }
     }
 

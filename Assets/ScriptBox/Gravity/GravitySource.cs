@@ -5,7 +5,10 @@ public abstract class GravitySource : MonoBehaviour
 {
     [Header("Identity")]
     [SerializeField] private Planner.PlanetType planetType = Planner.PlanetType.Circle;
+    [SerializeField] private bool isStatic = false;
+
     public Planner.PlanetType Type => planetType;
+    public bool IsStatic => isStatic;
 
     public static readonly List<GravitySource> ActiveSources = new List<GravitySource>();
     private readonly HashSet<GravityBody> trackedBodies = new HashSet<GravityBody>();
@@ -38,7 +41,7 @@ public abstract class GravitySource : MonoBehaviour
     protected virtual void OnDisable()
     {
         ActiveSources.Remove(this);
-        trackedBodies.Clear(); // Clean up tracking memory when turned off
+        trackedBodies.Clear(); 
     }
 
     public Vector2 GetForceOn(GravityBody body)
@@ -52,7 +55,6 @@ public abstract class GravitySource : MonoBehaviour
         Vector2 toSource = sourcePos - bodyPos;
         float distance = toSource.magnitude;
 
-        // check
         if (distance > influenceRadius || distance <= Mathf.Epsilon)
         {
             if (trackedBodies.Contains(body))
@@ -70,7 +72,6 @@ public abstract class GravitySource : MonoBehaviour
 
         Vector2 inwardDir = GetGravityDirection(bodyPos, body);
 
-        // calculations
         float range01 = Mathf.Clamp01(distance / influenceRadius);
         float rangeFalloff = 1f - range01;
         float inverseSoftened = 1f / (1f + softening * distance * distance);
@@ -82,9 +83,8 @@ public abstract class GravitySource : MonoBehaviour
         {
             Vector2 tangent = new Vector2(-inwardDir.y, inwardDir.x);
 
-            // Match structural trajectory sign with incoming velocity profile
             if (Vector2.Dot(body.Velocity, tangent) < 0f)
-                tangent = -tangent; // Note: kept your code logic layout intact
+                tangent = -tangent; 
 
             float assist01 = Mathf.Clamp01(1f - (distance / tangentialAssistRadius));
             float assistStrength = gravityStrength * tangentialAssist * assist01 * assist01;

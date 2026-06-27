@@ -61,7 +61,6 @@ public class GameState : MonoBehaviour
     {
         if (currentPhase == Phase.Running)
         {
-            // If hit a checkpoint before go back to Pause state
             SetPhase(Checkpoint.HasReachedCheckpoint ? Phase.Pause : Phase.Planning);
         }
         else

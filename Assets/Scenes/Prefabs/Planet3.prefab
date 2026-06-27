@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   planetType: 2
-  gravityStrength: 0.55
+  gravityStrength: 3.5
   influenceRadius: 0.6
   softening: 0.2
   tangentialAssist: 1

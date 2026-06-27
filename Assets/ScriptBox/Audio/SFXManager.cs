@@ -20,6 +20,8 @@ public class SFXManager : MonoBehaviour
     [SerializeField] private AudioClip gravityFieldEnterSFX;
     [SerializeField] private AudioClip buttonClick1SFX;
     [SerializeField] private AudioClip buttonClick2SFX;
+    [SerializeField] private AudioClip dialogueVoiceSFX;
+    [SerializeField] private AudioClip textScrollSFX;
 
     [Header("Explosion Sound Effects (Randomized)")]
     [SerializeField] private AudioClip explosionSFX1;
@@ -94,6 +96,18 @@ public class SFXManager : MonoBehaviour
     {
         if (buttonClick2SFX != null && sfxSource != null)
             sfxSource.PlayOneShot(buttonClick2SFX);
+    }
+
+    public void PlayDialogueVoice()
+    {
+        if (dialogueVoiceSFX != null && sfxSource != null)
+            sfxSource.PlayOneShot(dialogueVoiceSFX);
+    }
+
+    public void PlayTextScroll()
+    {
+        if (textScrollSFX != null && sfxSource != null)
+            sfxSource.PlayOneShot(textScrollSFX);
     }
 
 // looped
